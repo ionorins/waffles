@@ -14,11 +14,11 @@ public class MyNode<K, V> {
     }
 
     public MyNode<K, V> getLeft() {
-        return left;
+        return this.left;
     }
 
     public MyNode<K, V> getRight() {
-        return right;
+        return this.right;
     }
 
     public void setLeft(MyNode<K, V> node) {
@@ -30,11 +30,11 @@ public class MyNode<K, V> {
     }
 
     public K getKey() {
-        return key;
+        return this.key;
     }
 
     public V getValue() {
-        return value;
+        return this.value;
     }
 
     public void setKey(K key) {
@@ -46,7 +46,7 @@ public class MyNode<K, V> {
     }
 
     public int getHeight() {
-        return height;
+        return this.height;
     }
 
     public void setHeight(int height) {
