@@ -1,9 +1,9 @@
-// package uk.ac.warwick.cs126.structures;
+package uk.ac.warwick.cs126.structures;
 
 public class MyTree<K extends Comparable<K>, V> {
     public MyNode<K, V> root;
 
-    MyTree() {
+    public MyTree() {
         this.root = null;
     }
 
@@ -18,7 +18,12 @@ public class MyTree<K extends Comparable<K>, V> {
     }
 
     private MyNode<K, V> rotateRight(MyNode<K, V> y) {
+        System.err.println(y.getValue().toString());
         MyNode<K, V> x = y.getLeft();
+        if (x == null) {
+            System.err.println("no");
+            return null;
+        }
         MyNode<K, V> t2 = x.getRight();
 
         x.setRight(y);
@@ -31,10 +36,15 @@ public class MyTree<K extends Comparable<K>, V> {
     }
 
     private MyNode<K, V> rotateLeft(MyNode<K, V> x) {
+        System.err.println(x.getValue().toString());
         MyNode<K, V> y = x.getRight();
+        if (y == null) {
+            System.err.println("no");
+            return null;
+        }
         MyNode<K, V> t2 = y.getLeft();
 
-        y.setRight(x);
+        y.setLeft(x);
         x.setRight(t2);
 
         y.updateHeight();
@@ -92,7 +102,7 @@ public class MyTree<K extends Comparable<K>, V> {
         return node;
     }
 
-    public void insert(K key, V value) throws IllegalArgumentException {
+    public void add(K key, V value) throws IllegalArgumentException {
         root = this.insert(key, value, root);
     }
 

@@ -1,3 +1,5 @@
+package uk.ac.warwick.cs126.structures;
+
 public class MyKeyValuePair<K, V> {
     private K key;
     public V value;

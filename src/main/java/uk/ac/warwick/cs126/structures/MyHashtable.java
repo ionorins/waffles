@@ -1,4 +1,4 @@
-// package uk.ac.warwick.cs126.structures;
+package uk.ac.warwick.cs126.structures;
 
 public class MyHashtable<K, V> {
     private MyList<MyKeyValuePair<K, V>>[] array;
@@ -15,7 +15,8 @@ public class MyHashtable<K, V> {
     }
 
     private int getHash(K obj) {
-        return obj.hashCode() % arraySize;
+        int code = obj.hashCode() % arraySize;
+        return code < 0 ? -code : code;
     }
 
     public void add(K key, V value) {
@@ -43,8 +44,10 @@ public class MyHashtable<K, V> {
 
     public V get(K key) {
         MyListNode<MyKeyValuePair<K, V>> node = array[getHash(key)].getHead();
+        if (node == null)
+            return null;
 
-        System.out.println(getHash(key));
+        // System.err.println(getHash(key));
 
         while (!key.equals(node.getValue().getKey())) {
             node = node.getNext();
@@ -53,6 +56,10 @@ public class MyHashtable<K, V> {
         }
 
         return node.getValue().getValue();
+    }
+
+    public Boolean contains(K key) {
+        return this.get(key) != null;
     }
 
     public String toString() {

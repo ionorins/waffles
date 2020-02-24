@@ -1,4 +1,4 @@
-// package uk.ac.warwick.cs126.structures;
+package uk.ac.warwick.cs126.structures;
 
 public class MyArrayList<E> {
 

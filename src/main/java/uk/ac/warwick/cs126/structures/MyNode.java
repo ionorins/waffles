@@ -1,4 +1,4 @@
-// package uk.ac.warwick.cs126.structures;
+package uk.ac.warwick.cs126.structures;
 
 public class MyNode<K, V> {
     private MyNode<K, V> left, right;
