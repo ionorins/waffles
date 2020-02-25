@@ -27,7 +27,7 @@ public class RestaurantStore implements IRestaurantStore {
     private MyTree<Long, Restaurant> restaurantTree;
     private MyHashtable<Long, Boolean> blacklist;
     private DataChecker dataChecker;
-    private Lambda<Restaurant> idComp, nameComp, dateComp, starsComp, ratingComp;
+    private Lambda<Restaurant> idComp, nameComp, dateComp, starsComp, ratingComp, distComp;
 
     public RestaurantStore() {
         // Initialise variables here
@@ -84,6 +84,26 @@ public class RestaurantStore implements IRestaurantStore {
                 return -1;
             }
         };
+    }
+
+    private Lambda<Restaurant> createDistComp(float lat, float log) {
+        Lambda<Restaurant> distComp = new Lambda<Restaurant>() {
+            private float lat, lon;
+            public void setCoords(float lat, float lon) {
+                this.lat = lat;
+                this.lon = lon;
+            }
+
+            @Override
+            public int call(Restaurant a, Restaurant b) {
+                Float da = HaversineDistanceCalculator.inKilometres(a.getLatitude(), a.getLongitude(), lat, lon);
+                Float db = HaversineDistanceCalculator.inKilometres(b.getLatitude(), b.getLongitude(), lat, lon);
+                return da.compareTo(db);
+            }
+        };
+
+        distComp.setCoords(lat, log);
+        return distComp;
     }
 
     public Restaurant[] loadRestaurantDataToArray(InputStream resource) {
