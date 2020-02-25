@@ -128,7 +128,7 @@ public class MyTree<K extends Comparable<K>, V> {
 
                 // node with two children: Get the inorder
                 // successor (smallest in the right subtree)
-                MyNode<K, V> aux = node;
+                MyNode<K, V> aux = node.getRight();
 
                 while (aux.getLeft() != null)
                     aux = aux.getLeft();

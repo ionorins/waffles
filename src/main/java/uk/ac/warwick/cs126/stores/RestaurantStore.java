@@ -43,7 +43,7 @@ public class RestaurantStore implements IRestaurantStore {
             }
         };
 
-        nameComp = new Lambda<Restaurant>(){
+        nameComp = new Lambda<Restaurant>() {
 
             @Override
             public int call(Restaurant a, Restaurant b) {
@@ -53,7 +53,7 @@ public class RestaurantStore implements IRestaurantStore {
             }
         };
 
-        dateComp = new Lambda<Restaurant>(){
+        dateComp = new Lambda<Restaurant>() {
 
             @Override
             public int call(Restaurant a, Restaurant b) {
@@ -63,7 +63,7 @@ public class RestaurantStore implements IRestaurantStore {
             }
         };
 
-        starsComp = new Lambda<Restaurant>(){
+        starsComp = new Lambda<Restaurant>() {
 
             @Override
             public int call(Restaurant a, Restaurant b) {
@@ -73,7 +73,7 @@ public class RestaurantStore implements IRestaurantStore {
             }
         };
 
-        ratingComp = new Lambda<Restaurant>(){
+        ratingComp = new Lambda<Restaurant>() {
 
             @Override
             public int call(Restaurant a, Restaurant b) {
@@ -236,9 +236,9 @@ public class RestaurantStore implements IRestaurantStore {
 
     public Restaurant[] getRestaurantsContaining(String searchTerm) {
         // TODO
-        // String searchTermConverted = stringFormatter.convertAccents(searchTerm);
-        // String searchTermConvertedFaster =
-        // stringFormatter.convertAccentsFaster(searchTerm);
+        String searchTermConvertedFaster = StringFormatter.convertAccentsFaster(searchTerm.toLowerCase());
+
+
         return new Restaurant[0];
     }
 
