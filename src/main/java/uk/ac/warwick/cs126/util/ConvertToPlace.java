@@ -2,6 +2,7 @@ package uk.ac.warwick.cs126.util;
 
 import uk.ac.warwick.cs126.interfaces.IConvertToPlace;
 import uk.ac.warwick.cs126.models.Place;
+import uk.ac.warwick.cs126.structures.*;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -10,14 +11,35 @@ import java.nio.file.Paths;
 import org.apache.commons.io.IOUtils;
 
 public class ConvertToPlace implements IConvertToPlace {
+    Place[] placesArray;
+    MyHashtable<String, Place> placesTree;
 
     public ConvertToPlace() {
         // Initialise things here
+        placesArray = this.getPlacesArray();
+        placesTree = new MyHashtable<String, Place>();
+
+        for (Place place : placesArray)
+            placesTree.add(stringCoords(place) , place);
+    }
+
+    private String stringCoords(Place place) {
+        String latitude = ((Float) place.getLatitude()).toString();
+        String longitude = ((Float) place.getLongitude()).toString();
+        return latitude + longitude;
+    }
+
+    private String stringCoords(Float latitude, Float longitude) {
+        return latitude.toString() + longitude.toString();
     }
 
     public Place convert(float latitude, float longitude) {
         // TODO
-        return new Place("", "", 0.0f, 0.0f);
+        Place place = placesTree.get(stringCoords(latitude, longitude));
+
+        if (place == null)
+            return new Place("", "", 0.0f, 0.0f);
+        return place;
     }
 
     public Place[] getPlacesArray() {
@@ -33,8 +55,8 @@ public class ConvertToPlace implements IConvertToPlace {
             }
 
             byte[] inputStreamBytes = IOUtils.toByteArray(resource);
-            BufferedReader lineReader = new BufferedReader(new InputStreamReader(
-                    new ByteArrayInputStream(inputStreamBytes), StandardCharsets.UTF_8));
+            BufferedReader lineReader = new BufferedReader(
+                    new InputStreamReader(new ByteArrayInputStream(inputStreamBytes), StandardCharsets.UTF_8));
 
             int lineCount = 0;
             String line;
@@ -47,8 +69,8 @@ public class ConvertToPlace implements IConvertToPlace {
 
             Place[] loadedPlaces = new Place[lineCount - 1];
 
-            BufferedReader tsvReader = new BufferedReader(new InputStreamReader(
-                    new ByteArrayInputStream(inputStreamBytes), StandardCharsets.UTF_8));
+            BufferedReader tsvReader = new BufferedReader(
+                    new InputStreamReader(new ByteArrayInputStream(inputStreamBytes), StandardCharsets.UTF_8));
 
             int placeCount = 0;
             String row;
@@ -57,11 +79,7 @@ public class ConvertToPlace implements IConvertToPlace {
             while ((row = tsvReader.readLine()) != null) {
                 if (!("".equals(row))) {
                     String[] data = row.split("\t");
-                    Place place = new Place(
-                            data[0],
-                            data[1],
-                            Float.parseFloat(data[2]),
-                            Float.parseFloat(data[3]));
+                    Place place = new Place(data[0], data[1], Float.parseFloat(data[2]), Float.parseFloat(data[3]));
                     loadedPlaces[placeCount++] = place;
                 }
             }
@@ -76,4 +94,3 @@ public class ConvertToPlace implements IConvertToPlace {
         return placeArray;
     }
 }
-

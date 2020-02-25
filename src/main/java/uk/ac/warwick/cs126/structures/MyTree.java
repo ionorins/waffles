@@ -18,12 +18,8 @@ public class MyTree<K extends Comparable<K>, V> {
     }
 
     private MyNode<K, V> rotateRight(MyNode<K, V> y) {
-        System.err.println(y.getValue().toString());
+        // System.err.println(y.getValue().toString());
         MyNode<K, V> x = y.getLeft();
-        if (x == null) {
-            System.err.println("no");
-            return null;
-        }
         MyNode<K, V> t2 = x.getRight();
 
         x.setRight(y);
@@ -36,12 +32,7 @@ public class MyTree<K extends Comparable<K>, V> {
     }
 
     private MyNode<K, V> rotateLeft(MyNode<K, V> x) {
-        System.err.println(x.getValue().toString());
         MyNode<K, V> y = x.getRight();
-        if (y == null) {
-            System.err.println("no");
-            return null;
-        }
         MyNode<K, V> t2 = y.getLeft();
 
         y.setLeft(x);
@@ -83,21 +74,21 @@ public class MyTree<K extends Comparable<K>, V> {
 
         int dif = node.updateHeight();
 
-        if (dif > 1 && key.compareTo(node.getLeft().getKey()) < 0)
-            return rotateRight(node);
+        // if (dif > 1 && key.compareTo(node.getLeft().getKey()) < 0)
+        //     return rotateRight(node);
 
-        if (dif < -1 && key.compareTo(node.getRight().getKey()) > 0)
-            return rotateLeft(node);
+        // if (dif < -1 && key.compareTo(node.getRight().getKey()) > 0)
+        //     return rotateLeft(node);
 
-        if (dif > 1 && key.compareTo(node.getLeft().getKey()) > 0) {
-            node.setLeft(rotateLeft(node.getLeft()));
-            return rotateRight(node);
-        }
+        // if (dif > 1 && key.compareTo(node.getLeft().getKey()) > 0) {
+        //     node.setLeft(rotateLeft(node.getLeft()));
+        //     return rotateRight(node);
+        // }
 
-        if (dif < -1 && key.compareTo(node.getRight().getKey()) < 0) {
-            node.setRight(rotateRight(node.getRight()));
-            return rotateLeft(node);
-        }
+        // if (dif < -1 && key.compareTo(node.getRight().getKey()) < 0) {
+        //     node.setRight(rotateRight(node.getRight()));
+        //     return rotateLeft(node);
+        // }
 
         return node;
     }
@@ -157,21 +148,21 @@ public class MyTree<K extends Comparable<K>, V> {
 
         int dif = node.updateHeight();
 
-        if (dif > 1 && key.compareTo(node.getLeft().getKey()) < 0)
-            return rotateRight(node);
+        // if (dif > 1 && key.compareTo(node.getLeft().getKey()) < 0)
+        //     return rotateRight(node);
 
-        if (dif < -1 && key.compareTo(node.getRight().getKey()) > 0)
-            return rotateLeft(node);
+        // if (dif < -1 && key.compareTo(node.getRight().getKey()) > 0)
+        //     return rotateLeft(node);
 
-        if (dif > 1 && key.compareTo(node.getLeft().getKey()) > 0) {
-            node.setLeft(rotateLeft(node.getLeft()));
-            return rotateRight(node);
-        }
+        // if (dif > 1 && key.compareTo(node.getLeft().getKey()) > 0) {
+        //     node.setLeft(rotateLeft(node.getLeft()));
+        //     return rotateRight(node);
+        // }
 
-        if (dif < -1 && key.compareTo(node.getRight().getKey()) < 0) {
-            node.setRight(rotateRight(node.getRight()));
-            return rotateLeft(node);
-        }
+        // if (dif < -1 && key.compareTo(node.getRight().getKey()) < 0) {
+        //     node.setRight(rotateRight(node.getRight()));
+        //     return rotateLeft(node);
+        // }
 
         return node;
     }

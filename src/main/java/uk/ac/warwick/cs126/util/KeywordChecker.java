@@ -1,6 +1,7 @@
 package uk.ac.warwick.cs126.util;
 
 import uk.ac.warwick.cs126.interfaces.IKeywordChecker;
+import uk.ac.warwick.cs126.structures.MyHashtable;
 
 public class KeywordChecker implements IKeywordChecker {
     private static final String[] keywords = {
@@ -88,12 +89,19 @@ public class KeywordChecker implements IKeywordChecker {
             "yummy"
     };
 
+    private MyHashtable<String, Boolean> keywordTable;
+
     public KeywordChecker() {
         // Initialise things here
+        keywordTable = new MyHashtable<String, Boolean>();
+
+        for (String word : keywords) {
+            keywordTable.add(word, true);
+        }
     }
 
     public boolean isAKeyword(String word) {
         // TODO
-        return false;
+        return keywordTable.contains(word.toLowerCase());
     }
 }

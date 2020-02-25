@@ -15,7 +15,7 @@ import java.text.SimpleDateFormat;
 
 import org.apache.commons.io.IOUtils;
 
-import uk.ac.warwick.cs126.structures.MyArrayList;
+import uk.ac.warwick.cs126.structures.*;
 
 import uk.ac.warwick.cs126.util.ConvertToPlace;
 import uk.ac.warwick.cs126.util.HaversineDistanceCalculator;
@@ -24,13 +24,66 @@ import uk.ac.warwick.cs126.util.StringFormatter;
 
 public class RestaurantStore implements IRestaurantStore {
 
-    private MyArrayList<Restaurant> restaurantArray;
+    private MyTree<Long, Restaurant> restaurantTree;
+    private MyHashtable<Long, Boolean> blacklist;
     private DataChecker dataChecker;
+    private Lambda<Restaurant> idComp, nameComp, dateComp, starsComp, ratingComp;
 
     public RestaurantStore() {
         // Initialise variables here
-        restaurantArray = new MyArrayList<>();
+        restaurantTree = new MyTree<Long, Restaurant>();
+        blacklist = new MyHashtable<Long, Boolean>();
         dataChecker = new DataChecker();
+
+        idComp = new Lambda<Restaurant>() {
+
+            @Override
+            public int call(Restaurant a, Restaurant b) {
+                return a.getID().compareTo(b.getID());
+            }
+        };
+
+        nameComp = new Lambda<Restaurant>(){
+
+            @Override
+            public int call(Restaurant a, Restaurant b) {
+                if (a.getName().toLowerCase().equals(b.getName().toLowerCase()))
+                    return idComp.call(a, b);
+                return a.getName().toLowerCase().compareTo(b.getName().toLowerCase());
+            }
+        };
+
+        dateComp = new Lambda<Restaurant>(){
+
+            @Override
+            public int call(Restaurant a, Restaurant b) {
+                if (a.getDateEstablished().equals(b.getDateEstablished()))
+                    return nameComp.call(a, b);
+                return a.getDateEstablished().compareTo(b.getDateEstablished());
+            }
+        };
+
+        starsComp = new Lambda<Restaurant>(){
+
+            @Override
+            public int call(Restaurant a, Restaurant b) {
+                if (a.getWarwickStars() == b.getWarwickStars())
+                    return nameComp.call(a, b);
+                return b.getWarwickStars() - a.getWarwickStars();
+            }
+        };
+
+        ratingComp = new Lambda<Restaurant>(){
+
+            @Override
+            public int call(Restaurant a, Restaurant b) {
+                if (a.getCustomerRating() == b.getCustomerRating())
+                    return nameComp.call(a, b);
+                if (a.getCustomerRating() < b.getCustomerRating())
+                    return 1;
+                return -1;
+            }
+        };
     }
 
     public Restaurant[] loadRestaurantDataToArray(InputStream resource) {
@@ -38,8 +91,8 @@ public class RestaurantStore implements IRestaurantStore {
 
         try {
             byte[] inputStreamBytes = IOUtils.toByteArray(resource);
-            BufferedReader lineReader = new BufferedReader(new InputStreamReader(
-                    new ByteArrayInputStream(inputStreamBytes), StandardCharsets.UTF_8));
+            BufferedReader lineReader = new BufferedReader(
+                    new InputStreamReader(new ByteArrayInputStream(inputStreamBytes), StandardCharsets.UTF_8));
 
             int lineCount = 0;
             String line;
@@ -52,8 +105,8 @@ public class RestaurantStore implements IRestaurantStore {
 
             Restaurant[] loadedRestaurants = new Restaurant[lineCount - 1];
 
-            BufferedReader csvReader = new BufferedReader(new InputStreamReader(
-                    new ByteArrayInputStream(inputStreamBytes), StandardCharsets.UTF_8));
+            BufferedReader csvReader = new BufferedReader(
+                    new InputStreamReader(new ByteArrayInputStream(inputStreamBytes), StandardCharsets.UTF_8));
 
             String row;
             int restaurantCount = 0;
@@ -64,25 +117,12 @@ public class RestaurantStore implements IRestaurantStore {
                 if (!("".equals(row))) {
                     String[] data = row.split(",");
 
-                    Restaurant restaurant = new Restaurant(
-                            data[0],
-                            data[1],
-                            data[2],
-                            data[3],
-                            Cuisine.valueOf(data[4]),
-                            EstablishmentType.valueOf(data[5]),
-                            PriceRange.valueOf(data[6]),
-                            formatter.parse(data[7]),
-                            Float.parseFloat(data[8]),
-                            Float.parseFloat(data[9]),
-                            Boolean.parseBoolean(data[10]),
-                            Boolean.parseBoolean(data[11]),
-                            Boolean.parseBoolean(data[12]),
-                            Boolean.parseBoolean(data[13]),
-                            Boolean.parseBoolean(data[14]),
-                            Boolean.parseBoolean(data[15]),
-                            formatter.parse(data[16]),
-                            Integer.parseInt(data[17]),
+                    Restaurant restaurant = new Restaurant(data[0], data[1], data[2], data[3], Cuisine.valueOf(data[4]),
+                            EstablishmentType.valueOf(data[5]), PriceRange.valueOf(data[6]), formatter.parse(data[7]),
+                            Float.parseFloat(data[8]), Float.parseFloat(data[9]), Boolean.parseBoolean(data[10]),
+                            Boolean.parseBoolean(data[11]), Boolean.parseBoolean(data[12]),
+                            Boolean.parseBoolean(data[13]), Boolean.parseBoolean(data[14]),
+                            Boolean.parseBoolean(data[15]), formatter.parse(data[16]), Integer.parseInt(data[17]),
                             Integer.parseInt(data[18]));
 
                     loadedRestaurants[restaurantCount++] = restaurant;
@@ -100,53 +140,87 @@ public class RestaurantStore implements IRestaurantStore {
     }
 
     public boolean addRestaurant(Restaurant restaurant) {
-        // TODO        
-        return false;
+        // TODO
+        if (!dataChecker.isValid(restaurant) || blacklist.contains(restaurant.getID()))
+            return false;
+
+        Restaurant check = this.getRestaurant(restaurant.getID());
+        if (check != null) {
+            blacklist.add(restaurant.getID(), true);
+            restaurantTree.remove(restaurant.getID());
+            return false;
+        }
+
+        restaurantTree.add(restaurant.getID(), restaurant);
+        return true;
     }
 
     public boolean addRestaurant(Restaurant[] restaurants) {
         // TODO
-        return false;
+        boolean success = true;
+        for (Restaurant restaurant : restaurants) {
+            success = this.addRestaurant(restaurant) && success;
+        }
+
+        return success;
     }
 
     public Restaurant getRestaurant(Long id) {
         // TODO
-        return null;
+        return restaurantTree.search(id);
     }
 
     public Restaurant[] getRestaurants() {
         // TODO
-        return new Restaurant[0];
+        return (Restaurant[]) toArray(restaurantTree.toArrayList());
     }
 
     public Restaurant[] getRestaurants(Restaurant[] restaurants) {
         // TODO
-        return new Restaurant[0];
+        Restaurant[] aux = new Restaurant[restaurants.length];
+        for (int i = 0; i < restaurants.length; i++)
+            aux[i] = restaurants[i];
+        Algorithms.sort(aux, idComp);
+        return aux;
     }
 
     public Restaurant[] getRestaurantsByName() {
         // TODO
-        return new Restaurant[0];
+        Restaurant[] aux = toArray(restaurantTree.toArrayList());
+        Algorithms.sort(aux, nameComp);
+        return aux;
     }
 
     public Restaurant[] getRestaurantsByDateEstablished() {
         // TODO
-        return new Restaurant[0];
+        Restaurant[] aux = toArray(restaurantTree.toArrayList());
+        Algorithms.sort(aux, dateComp);
+        return aux;
     }
 
     public Restaurant[] getRestaurantsByDateEstablished(Restaurant[] restaurants) {
         // TODO
-        return new Restaurant[0];
+        Restaurant[] aux = new Restaurant[restaurants.length];
+        for (int i = 0; i < restaurants.length; i++)
+            aux[i] = restaurants[i];
+        Algorithms.sort(aux, dateComp);
+        return aux;
     }
 
     public Restaurant[] getRestaurantsByWarwickStars() {
         // TODO
-        return new Restaurant[0];
+        Restaurant[] aux = toArray(restaurantTree.toArrayList());
+        Algorithms.sort(aux, starsComp);
+        return aux;
     }
 
     public Restaurant[] getRestaurantsByRating(Restaurant[] restaurants) {
         // TODO
-        return new Restaurant[0];
+        Restaurant[] aux = new Restaurant[restaurants.length];
+        for (int i = 0; i < restaurants.length; i++)
+            aux[i] = restaurants[i];
+        Algorithms.sort(aux, ratingComp);
+        return aux;
     }
 
     public RestaurantDistance[] getRestaurantsByDistanceFrom(float latitude, float longitude) {
@@ -154,7 +228,8 @@ public class RestaurantStore implements IRestaurantStore {
         return new RestaurantDistance[0];
     }
 
-    public RestaurantDistance[] getRestaurantsByDistanceFrom(Restaurant[] restaurants, float latitude, float longitude) {
+    public RestaurantDistance[] getRestaurantsByDistanceFrom(Restaurant[] restaurants, float latitude,
+            float longitude) {
         // TODO
         return new RestaurantDistance[0];
     }
@@ -162,7 +237,16 @@ public class RestaurantStore implements IRestaurantStore {
     public Restaurant[] getRestaurantsContaining(String searchTerm) {
         // TODO
         // String searchTermConverted = stringFormatter.convertAccents(searchTerm);
-        // String searchTermConvertedFaster = stringFormatter.convertAccentsFaster(searchTerm);
+        // String searchTermConvertedFaster =
+        // stringFormatter.convertAccentsFaster(searchTerm);
         return new Restaurant[0];
+    }
+
+    private Restaurant[] toArray(MyArrayList<Restaurant> arr) {
+        Restaurant[] aux = new Restaurant[arr.size()];
+        for (int i = 0; i < arr.size(); i++) {
+            aux[i] = arr.get(i);
+        }
+        return aux;
     }
 }

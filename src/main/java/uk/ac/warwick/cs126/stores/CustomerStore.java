@@ -16,14 +16,14 @@ import uk.ac.warwick.cs126.util.StringFormatter;
 
 public class CustomerStore implements ICustomerStore {
 
-    private MyTree<Long, Customer> customerArray;
+    private MyTree<Long, Customer> customerTree;
     private MyHashtable<Long, Boolean> blacklist;
     private DataChecker dataChecker;
     private Lambda<Customer> idComp, nameComp;
 
     public CustomerStore() {
         // Initialise variables here
-        customerArray = new MyTree<Long, Customer>();
+        customerTree = new MyTree<Long, Customer>();
         blacklist = new MyHashtable<Long, Boolean>();
         dataChecker = new DataChecker();
 
@@ -31,13 +31,7 @@ public class CustomerStore implements ICustomerStore {
 
             @Override
             public int call(Customer a, Customer b) {
-                long aID = a.getID(), bID = b.getID();
-
-                if (aID < bID)
-                    return -1;
-                if (aID == bID)
-                    return 0;
-                return 1;
+                return a.getID().compareTo(b.getID());
             }
         };
 
@@ -45,15 +39,18 @@ public class CustomerStore implements ICustomerStore {
 
             @Override
             public int call(Customer a, Customer b) {
-                if (a.getLastName().equals(b.getLastName()))
-                    return a.getFirstName().compareTo(b.getFirstName());
-                return a.getLastName().compareTo(b.getLastName());
+                if (a.getLastName().toLowerCase().equals(b.getLastName().toLowerCase()))
+                    if (a.getFirstName().toLowerCase().equals(b.getFirstName().toLowerCase()))
+                        return a.getID().compareTo(b.getID());
+                    else
+                        return a.getFirstName().toLowerCase().compareTo(b.getFirstName().toLowerCase());
+                return a.getLastName().toLowerCase().compareTo(b.getLastName().toLowerCase());
             }
         };
     }
 
     public Customer[] loadCustomerDataToArray(InputStream resource) {
-        Customer[] customerArray = new Customer[0];
+        Customer[] customerTree = new Customer[0];
 
         try {
             byte[] inputStreamBytes = IOUtils.toByteArray(resource);
@@ -91,13 +88,13 @@ public class CustomerStore implements ICustomerStore {
             }
             csvReader.close();
 
-            customerArray = loadedCustomers;
+            customerTree = loadedCustomers;
 
         } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
 
-        return customerArray;
+        return customerTree;
     }
 
     public boolean addCustomer(Customer customer) {
@@ -108,17 +105,17 @@ public class CustomerStore implements ICustomerStore {
         Customer check = this.getCustomer(customer.getID());
         if (check != null) {
             blacklist.add(customer.getID(), true);
-            customerArray.remove(customer.getID());
+            customerTree.remove(customer.getID());
             return false;
         }
 
-        customerArray.add(customer.getID(), customer);
+        customerTree.add(customer.getID(), customer);
         return true;
     }
 
     public boolean addCustomer(Customer[] customers) {
         // TODO
-        Boolean success = true;
+        boolean success = true;
         for (Customer customer : customers) {
             success = this.addCustomer(customer) && success;
         }
@@ -128,12 +125,12 @@ public class CustomerStore implements ICustomerStore {
 
     public Customer getCustomer(Long id) {
         // TODO
-        return customerArray.search(id);
+        return customerTree.search(id);
     }
 
     public Customer[] getCustomers() {
         // TODO
-        return (Customer[]) toArray(customerArray.toArrayList());
+        return (Customer[]) toArray(customerTree.toArrayList());
     }
 
     public Customer[] getCustomers(Customer[] customers) {
@@ -147,7 +144,7 @@ public class CustomerStore implements ICustomerStore {
 
     public Customer[] getCustomersByName() {
         // TODO
-        Customer[] aux = toArray(customerArray.toArrayList());
+        Customer[] aux = toArray(customerTree.toArrayList());
         Algorithms.sort(aux, nameComp);
         return aux;
     }
@@ -164,9 +161,17 @@ public class CustomerStore implements ICustomerStore {
     public Customer[] getCustomersContaining(String searchTerm) {
         // TODO
         // String searchTermConverted = stringFormatter.convertAccents(searchTerm);
-        // String searchTermConvertedFaster =
-        // stringFormatter.convertAccentsFaster(searchTerm);
-        return new Customer[0];
+        String searchTermConvertedFaster = StringFormatter.convertAccentsFaster(searchTerm.toLowerCase());
+        MyArrayList<Customer> customerArray = customerTree.toArrayList();
+        MyArrayList<Customer> result = new MyArrayList<Customer>();
+        for (int i = 0; i < customerArray.size(); i++)
+            if (customerArray.get(i).getLastName().toLowerCase().contains(searchTermConvertedFaster) ||
+            customerArray.get(i).getFirstName().toLowerCase().contains(searchTermConvertedFaster))
+                result.add(customerArray.get(i));
+
+        Customer[] res = toArray(result);
+        Algorithms.sort(res, nameComp);
+        return res;
     }
 
     private Customer[] toArray(MyArrayList<Customer> arr) {
@@ -176,5 +181,4 @@ public class CustomerStore implements ICustomerStore {
         }
         return aux;
     }
-
 }
