@@ -27,13 +27,16 @@ public class RestaurantStore implements IRestaurantStore {
     private MyTree<Long, Restaurant> restaurantTree;
     private MyHashtable<Long, Boolean> blacklist;
     private DataChecker dataChecker;
-    private Lambda<Restaurant> idComp, nameComp, dateComp, starsComp, ratingComp, distComp;
+    private Lambda<Restaurant> idComp, nameComp, dateComp, starsComp, ratingComp;
+    private Lambda<RestaurantDistance> distComp;
+    private ConvertToPlace convertToPlace;
 
     public RestaurantStore() {
         // Initialise variables here
         restaurantTree = new MyTree<Long, Restaurant>();
         blacklist = new MyHashtable<Long, Boolean>();
         dataChecker = new DataChecker();
+        convertToPlace = new ConvertToPlace();
 
         idComp = new Lambda<Restaurant>() {
 
@@ -74,7 +77,6 @@ public class RestaurantStore implements IRestaurantStore {
         };
 
         ratingComp = new Lambda<Restaurant>() {
-
             @Override
             public int call(Restaurant a, Restaurant b) {
                 if (a.getCustomerRating() == b.getCustomerRating())
@@ -84,26 +86,20 @@ public class RestaurantStore implements IRestaurantStore {
                 return -1;
             }
         };
-    }
 
-    private Lambda<Restaurant> createDistComp(float lat, float log) {
-        Lambda<Restaurant> distComp = new Lambda<Restaurant>() {
-            private float lat, lon;
-            public void setCoords(float lat, float lon) {
-                this.lat = lat;
-                this.lon = lon;
-            }
+        distComp = new Lambda<RestaurantDistance>() {
 
             @Override
-            public int call(Restaurant a, Restaurant b) {
-                Float da = HaversineDistanceCalculator.inKilometres(a.getLatitude(), a.getLongitude(), lat, lon);
-                Float db = HaversineDistanceCalculator.inKilometres(b.getLatitude(), b.getLongitude(), lat, lon);
-                return da.compareTo(db);
+            public int call(RestaurantDistance a, RestaurantDistance b) {
+                Float distA = a.getDistance();
+                Float distB = b.getDistance();
+
+                if (distA.equals(distB))
+                    return idComp.call(a.getRestaurant(), b.getRestaurant());
+                else
+                    return distA.compareTo(distB);
             }
         };
-
-        distComp.setCoords(lat, log);
-        return distComp;
     }
 
     public Restaurant[] loadRestaurantDataToArray(InputStream resource) {
@@ -229,7 +225,12 @@ public class RestaurantStore implements IRestaurantStore {
 
     public Restaurant[] getRestaurantsByWarwickStars() {
         // TODO
-        Restaurant[] aux = toArray(restaurantTree.toArrayList());
+        MyArrayList<Restaurant> filtered = new MyArrayList<Restaurant>();
+        MyArrayList<Restaurant> restaurants = restaurantTree.toArrayList();
+        for (int i = 0; i < restaurants.size(); i++)
+            if (restaurants.get(i).getWarwickStars() > 0)
+                filtered.add(restaurants.get(i));
+        Restaurant[] aux = toArray(filtered);
         Algorithms.sort(aux, starsComp);
         return aux;
     }
@@ -245,21 +246,50 @@ public class RestaurantStore implements IRestaurantStore {
 
     public RestaurantDistance[] getRestaurantsByDistanceFrom(float latitude, float longitude) {
         // TODO
-        return new RestaurantDistance[0];
+        Restaurant[] restaurants = toArray(restaurantTree.toArrayList());
+        RestaurantDistance[] aux = new RestaurantDistance[restaurants.length];
+        for (int i = 0; i < restaurants.length; i++)
+            aux[i] = new RestaurantDistance(restaurants[i], HaversineDistanceCalculator
+                    .inKilometres(restaurants[i].getLatitude(), restaurants[i].getLongitude(), latitude, longitude));
+
+        Algorithms.sort(aux, distComp);
+        return aux;
     }
 
     public RestaurantDistance[] getRestaurantsByDistanceFrom(Restaurant[] restaurants, float latitude,
             float longitude) {
         // TODO
-        return new RestaurantDistance[0];
+        RestaurantDistance[] aux = new RestaurantDistance[restaurants.length];
+        for (int i = 0; i < restaurants.length; i++)
+            aux[i] = new RestaurantDistance(restaurants[i], HaversineDistanceCalculator
+                    .inKilometres(restaurants[i].getLatitude(), restaurants[i].getLongitude(), latitude, longitude));
+
+        Algorithms.sort(aux, distComp);
+        return aux;
     }
 
     public Restaurant[] getRestaurantsContaining(String searchTerm) {
         // TODO
-        String searchTermConvertedFaster = StringFormatter.convertAccentsFaster(searchTerm.toLowerCase());
+        searchTerm = searchTerm.trim().replaceAll(" +", " ").toLowerCase();
+        if (searchTerm.equals(""))
+            return new Restaurant[0];
 
+        String term = StringFormatter.convertAccentsFaster(searchTerm);
+        MyArrayList<Restaurant> restaurantArray = restaurantTree.toArrayList();
+        MyArrayList<Restaurant> result = new MyArrayList<Restaurant>();
 
-        return new Restaurant[0];
+        for (int i = 0; i < restaurantArray.size(); i++) {
+            Restaurant restaurant = restaurantArray.get(i);
+            if (restaurant.getName().toLowerCase().contains(term)
+                    || restaurant.getCuisine().toString().toLowerCase().contains(term)
+                    || convertToPlace.convert(restaurant.getLatitude(), restaurant.getLongitude()).getName()
+                            .toLowerCase().contains(term))
+                result.add(restaurantArray.get(i));
+        }
+
+        Restaurant[] res = toArray(result);
+        Algorithms.sort(res, nameComp);
+        return res;
     }
 
     private Restaurant[] toArray(MyArrayList<Restaurant> arr) {

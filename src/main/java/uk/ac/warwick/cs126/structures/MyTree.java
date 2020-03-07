@@ -74,21 +74,21 @@ public class MyTree<K extends Comparable<K>, V> {
 
         int dif = node.updateHeight();
 
-        // if (dif > 1 && key.compareTo(node.getLeft().getKey()) < 0)
-        //     return rotateRight(node);
+        if (dif > 1 && node.getLeft().updateHeight() >= 0)
+            return rotateRight(node);
 
-        // if (dif < -1 && key.compareTo(node.getRight().getKey()) > 0)
-        //     return rotateLeft(node);
+        if (dif < -1 && node.getRight().updateHeight() <= 0)
+            return rotateLeft(node);
 
-        // if (dif > 1 && key.compareTo(node.getLeft().getKey()) > 0) {
-        //     node.setLeft(rotateLeft(node.getLeft()));
-        //     return rotateRight(node);
-        // }
+        if (dif > 1 && node.getLeft().updateHeight() < 0) {
+            node.setLeft(rotateLeft(node.getLeft()));
+            return rotateRight(node);
+        }
 
-        // if (dif < -1 && key.compareTo(node.getRight().getKey()) < 0) {
-        //     node.setRight(rotateRight(node.getRight()));
-        //     return rotateLeft(node);
-        // }
+        if (dif < -1 && node.getRight().updateHeight() > 0) {
+            node.setRight(rotateRight(node.getRight()));
+            return rotateLeft(node);
+        }
 
         return node;
     }
@@ -148,21 +148,21 @@ public class MyTree<K extends Comparable<K>, V> {
 
         int dif = node.updateHeight();
 
-        // if (dif > 1 && key.compareTo(node.getLeft().getKey()) < 0)
-        //     return rotateRight(node);
+        if (dif > 1 && node.getLeft().updateHeight() >= 0)
+            return rotateRight(node);
 
-        // if (dif < -1 && key.compareTo(node.getRight().getKey()) > 0)
-        //     return rotateLeft(node);
+        if (dif < -1 && node.getRight().updateHeight() <= 0)
+            return rotateLeft(node);
 
-        // if (dif > 1 && key.compareTo(node.getLeft().getKey()) > 0) {
-        //     node.setLeft(rotateLeft(node.getLeft()));
-        //     return rotateRight(node);
-        // }
+        if (dif > 1 && node.getLeft().updateHeight() < 0) {
+            node.setLeft(rotateLeft(node.getLeft()));
+            return rotateRight(node);
+        }
 
-        // if (dif < -1 && key.compareTo(node.getRight().getKey()) < 0) {
-        //     node.setRight(rotateRight(node.getRight()));
-        //     return rotateLeft(node);
-        // }
+        if (dif < -1 && node.getRight().updateHeight() > 0) {
+            node.setRight(rotateRight(node.getRight()));
+            return rotateLeft(node);
+        }
 
         return node;
     }

@@ -12,15 +12,15 @@ import org.apache.commons.io.IOUtils;
 
 public class ConvertToPlace implements IConvertToPlace {
     Place[] placesArray;
-    MyHashtable<String, Place> placesTree;
+    MyHashtable<String, Place> placesTable;
 
     public ConvertToPlace() {
         // Initialise things here
         placesArray = this.getPlacesArray();
-        placesTree = new MyHashtable<String, Place>();
+        placesTable = new MyHashtable<String, Place>();
 
         for (Place place : placesArray)
-            placesTree.add(stringCoords(place) , place);
+            placesTable.add(stringCoords(place) , place);
     }
 
     private String stringCoords(Place place) {
@@ -35,7 +35,7 @@ public class ConvertToPlace implements IConvertToPlace {
 
     public Place convert(float latitude, float longitude) {
         // TODO
-        Place place = placesTree.get(stringCoords(latitude, longitude));
+        Place place = placesTable.get(stringCoords(latitude, longitude));
 
         if (place == null)
             return new Place("", "", 0.0f, 0.0f);
