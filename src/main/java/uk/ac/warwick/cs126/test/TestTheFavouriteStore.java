@@ -12,13 +12,13 @@ public class TestTheFavouriteStore extends TestRunner {
         testAddFavourites();
         testGetFavourite();
         testGetFavourites();
-        testGetFavouritesByCustomerID();
-        testGetFavouritesByRestaurantID();
-        testGetCommonFavouriteRestaurants();
-        testGetNotCommonFavouriteRestaurants();
-        testGetMissingFavouriteRestaurants();
-        testGetTopRestaurantsByFavouriteCount();
-        testGetTopCustomersByFavouriteCount();
+        // testGetFavouritesByCustomerID();
+        // testGetFavouritesByRestaurantID();
+        // testGetCommonFavouriteRestaurants();
+        // testGetNotCommonFavouriteRestaurants();
+        // testGetMissingFavouriteRestaurants();
+        // testGetTopRestaurantsByFavouriteCount();
+        // testGetTopCustomersByFavouriteCount();
     }
 
     private void testAddFavourite() {

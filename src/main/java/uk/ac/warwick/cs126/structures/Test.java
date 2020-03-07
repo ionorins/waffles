@@ -8,6 +8,6 @@ public class Test {
         for (Integer i = 0; i < 100; i++)
             tree.add(i, i.toString());
 
-        System.out.println(tree.root.getHeight());
+        // System.out.println(tree.root.getHeight());
     }
 }

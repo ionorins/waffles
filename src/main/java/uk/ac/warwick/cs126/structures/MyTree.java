@@ -1,10 +1,24 @@
 package uk.ac.warwick.cs126.structures;
 
 public class MyTree<K extends Comparable<K>, V> {
-    public MyNode<K, V> root;
+    private MyNode<K, V> root;
 
     public MyTree() {
         this.root = null;
+    }
+
+    public MyNode<K, V> getSmallest() {
+        MyNode<K, V> ret = this.root;
+        while (ret.getLeft() != null)
+            ret = ret.getLeft();
+        return ret;
+    }
+
+    public MyNode<K, V> getBiggest() {
+        MyNode<K, V> ret = this.root;
+        while (ret.getRight() != null)
+            ret = ret.getRight();
+        return ret;
     }
 
     private V search(K key, MyNode<K, V> node) {
