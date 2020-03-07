@@ -26,6 +26,7 @@ public class FavouriteStore implements IFavouriteStore {
         // Initialise variables here
         favouriteTree = new MyTree<Long, Favourite>();
         favouriteTable = new MyHashtable<Long, MyTree<Long, Long>>();
+        favouriteTable = new MyHashtable<Long, MyTree<Long, Long>>();
         blacklist = new MyHashtable<Long, Boolean>();
         dataChecker = new DataChecker();
     }
