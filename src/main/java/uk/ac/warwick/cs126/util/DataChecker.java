@@ -7,17 +7,12 @@ import uk.ac.warwick.cs126.models.Restaurant;
 import uk.ac.warwick.cs126.models.Favourite;
 import uk.ac.warwick.cs126.models.Review;
 
-import java.util.Date;
-
 public class DataChecker implements IDataChecker {
-
-    public DataChecker() {
-        // Initialise things here
-    }
 
     public Long extractTrueID(String[] repeatedID) {
         if (repeatedID.length != 3)
             return null;
+        // check repeated ids two by two
         if (repeatedID[0].equals(repeatedID[1]) || repeatedID[0].equals(repeatedID[2]))
             return Long.parseLong(repeatedID[0]);
         if (repeatedID[1].equals(repeatedID[2]))
@@ -26,7 +21,6 @@ public class DataChecker implements IDataChecker {
     }
 
     public boolean isValid(Long inputID) {
-        // TODO
         int[] count = new int[10];
         int len = 0;
 
@@ -43,13 +37,11 @@ public class DataChecker implements IDataChecker {
     }
 
     public boolean isValid(Customer customer) {
-        // TODO
         return customer != null && customer.getID() != null && customer.getFirstName() != null
                 && customer.getLastName() != null && customer.getDateJoined() != null && isValid(customer.getID());
     }
 
     public boolean isValid(Restaurant restaurant) {
-        // TODO
         if (restaurant != null && restaurant.getRepeatedID() != null)
             restaurant.setID(extractTrueID(restaurant.getRepeatedID()));
         return restaurant != null && restaurant.getRepeatedID() != null && restaurant.getID() != null
@@ -65,7 +57,6 @@ public class DataChecker implements IDataChecker {
     }
 
     public boolean isValid(Favourite favourite) {
-        // TODO
         return favourite != null && favourite.getID() != null && favourite.getCustomerID() != null
                 && favourite.getCustomerID() != null && favourite.getDateFavourited() != null
                 && isValid(favourite.getID()) && isValid(favourite.getCustomerID())
@@ -73,7 +64,6 @@ public class DataChecker implements IDataChecker {
     }
 
     public boolean isValid(Review review) {
-        // TODO
         return review != null && review.getCustomerID() != null && review.getRestaurantID() != null
                 && review.getDateReviewed() != null && review.getReview() != null && isValid(review.getID())
                 && isValid(review.getCustomerID()) && isValid(review.getRestaurantID());

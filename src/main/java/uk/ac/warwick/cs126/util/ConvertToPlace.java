@@ -15,26 +15,37 @@ public class ConvertToPlace implements IConvertToPlace {
     MyHashtable<String, Place> placesTable;
 
     public ConvertToPlace() {
-        // Initialise things here
         placesArray = this.getPlacesArray();
         placesTable = new MyHashtable<String, Place>();
 
         for (Place place : placesArray)
-            placesTable.add(stringCoords(place) , place);
+            placesTable.add(stringCoords(place), place);
     }
 
+    /**
+     * Converts place coordinates to string representation
+     *
+     * @param place the place to be converted
+     * @return string representation of the coordinates of the place taken as input
+     */
     private String stringCoords(Place place) {
         String latitude = ((Float) place.getLatitude()).toString();
         String longitude = ((Float) place.getLongitude()).toString();
         return latitude + longitude;
     }
 
+    /**
+     * Converts floating point coordinates to string representation
+     *
+     * @param latitude  latitude of coordinates to be converted
+     * @param longitude longitude of coordinates to be converted
+     * @return string representation of the coordinates taken as input
+     */
     private String stringCoords(Float latitude, Float longitude) {
         return latitude.toString() + longitude.toString();
     }
 
     public Place convert(float latitude, float longitude) {
-        // TODO
         Place place = placesTable.get(stringCoords(latitude, longitude));
 
         if (place == null)

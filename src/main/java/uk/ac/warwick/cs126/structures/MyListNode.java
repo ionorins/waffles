@@ -1,8 +1,5 @@
 package uk.ac.warwick.cs126.structures;
 
-/**
- * MyListNode
- */
 public class MyListNode<E> {
     private E value;
     private MyListNode<E> next;

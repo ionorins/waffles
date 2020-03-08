@@ -1,5 +1,11 @@
 package uk.ac.warwick.cs126.structures;
 
+/**
+ * Implementation of AVL tree
+ *
+ * @param <K> type of key
+ * @param <V> type of value
+ */
 public class MyTree<K extends Comparable<K>, V> {
     private MyNode<K, V> root;
 
@@ -7,19 +13,19 @@ public class MyTree<K extends Comparable<K>, V> {
         this.root = null;
     }
 
-    public MyNode<K, V> getSmallest() {
-        MyNode<K, V> ret = this.root;
-        while (ret.getLeft() != null)
-            ret = ret.getLeft();
-        return ret;
-    }
+    // public MyNode<K, V> getSmallest() {
+    //     MyNode<K, V> ret = this.root;
+    //     while (ret.getLeft() != null)
+    //         ret = ret.getLeft();
+    //     return ret;
+    // }
 
-    public MyNode<K, V> getBiggest() {
-        MyNode<K, V> ret = this.root;
-        while (ret.getRight() != null)
-            ret = ret.getRight();
-        return ret;
-    }
+    // public MyNode<K, V> getBiggest() {
+    //     MyNode<K, V> ret = this.root;
+    //     while (ret.getRight() != null)
+    //         ret = ret.getRight();
+    //     return ret;
+    // }
 
     private V search(K key, MyNode<K, V> node) {
         if (node == null)
@@ -32,7 +38,6 @@ public class MyTree<K extends Comparable<K>, V> {
     }
 
     private MyNode<K, V> rotateRight(MyNode<K, V> y) {
-        // System.err.println(y.getValue().toString());
         MyNode<K, V> x = y.getLeft();
         MyNode<K, V> t2 = x.getRight();
 

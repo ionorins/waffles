@@ -53,6 +53,11 @@ public class MyNode<K, V> {
         this.height = height;
     }
 
+    /**
+     * Updates the hight of the node to 1 + max(left child, right child)
+     *
+     * @return height of left child minus hight of right child
+     */
     public int updateHeight() {
         int l = this.getLeft() == null ? 0 : this.getLeft().getHeight();
         int r = this.getRight() == null ? 0 : this.getRight().getHeight();

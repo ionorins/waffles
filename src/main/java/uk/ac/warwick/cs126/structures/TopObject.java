@@ -4,10 +4,17 @@ public class TopObject {
     private long id;
     private long date;
     private int count;
+    private double rating;
 
     public TopObject(long id, int count, long date) {
         this.id = id;
         this.count = count;
+        this.date = date;
+    }
+
+    public TopObject(long id, double rating, long date) {
+        this.id = id;
+        this.rating = rating;
         this.date = date;
     }
 
@@ -21,5 +28,9 @@ public class TopObject {
 
     public int getCount() {
         return this.count;
+    }
+
+    public Double getRating() {
+        return this.rating;
     }
 }

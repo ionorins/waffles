@@ -5,12 +5,17 @@ public class HaversineDistanceCalculator {
     private final static float R = 6372.8f;
     private final static float kilometresInAMile = 1.609344f;
 
+    /**
+     * Converts degrees to radians
+     *
+     * @param x angle in degrees
+     * @return angle in radians
+     */
     private static double toRad(float x) {
         return x * Math.PI / 180;
     }
 
     public static float inKilometres(float lat1, float lon1, float lat2, float lon2) {
-        // TODO
         double lat1r = toRad(lat1);
         double lat2r = toRad(lat2);
         double lon1r = toRad(lon1);
@@ -24,7 +29,6 @@ public class HaversineDistanceCalculator {
     }
 
     public static float inMiles(float lat1, float lon1, float lat2, float lon2) {
-        // TODO
         return (float) Math.round(inKilometres(lat1, lon1, lat2, lon2) / kilometresInAMile * 10) / 10;
     }
 

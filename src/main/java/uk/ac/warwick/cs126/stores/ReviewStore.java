@@ -23,8 +23,9 @@ public class ReviewStore implements IReviewStore {
     private MyHashtable<Long, String> blacklist;
     private DataChecker dataChecker;
     private Lambda<Review> compId, compDate, compRating;
-    private Lambda<TopObject> compTop;
+    private Lambda<TopObject> compTop, compTopRating;
     private MyTree<Long, Long> restaurants, customers;
+    private KeywordChecker keywordChecker;
 
     public ReviewStore() {
         // Initialise variables here
@@ -33,6 +34,7 @@ public class ReviewStore implements IReviewStore {
         blacklist = new MyHashtable<>();
         reviewTable = new MyHashtable<>();
         dataChecker = new DataChecker();
+        keywordChecker = new KeywordChecker();
         restaurants = new MyTree<>();
         customers = new MyTree<>();
 
@@ -74,6 +76,19 @@ public class ReviewStore implements IReviewStore {
                     return b.getDate().compareTo(a.getDate());
                 }
                 return b.getCount() - a.getCount();
+            }
+        };
+
+        compTopRating = new Lambda<TopObject>() {
+
+            @Override
+            public int call(TopObject a, TopObject b) {
+                if (a.getRating().equals(b.getRating())) {
+                    if (a.getDate().equals(b.getDate()))
+                        return a.getId().compareTo(b.getId());
+                    return b.getDate().compareTo(a.getDate());
+                }
+                return b.getRating().compareTo(a.getRating());
             }
         };
     }
@@ -219,14 +234,14 @@ public class ReviewStore implements IReviewStore {
 
     public Review[] getReviewsByDate() {
         // TODO
-        Review[] aux = getReviews();
+        Review[] aux = toArray(reviewTree.toArrayList());
         Algorithms.sort(aux, compDate);
         return aux;
     }
 
     public Review[] getReviewsByRating() {
         // TODO
-        Review[] aux = getReviews();
+        Review[] aux = toArray(reviewTree.toArrayList());
         Algorithms.sort(aux, compRating);
         return aux;
     }
@@ -234,7 +249,7 @@ public class ReviewStore implements IReviewStore {
     public Review[] getReviewsByCustomerID(Long id) {
         // TODO
         MyArrayList<Review> aux = new MyArrayList<Review>();
-        Review[] reviews = getReviews();
+        Review[] reviews = toArray(reviewTree.toArrayList());
         for (int i = 0; i < reviews.length; i++)
             if (reviews[i].getCustomerID().equals(id))
                 aux.add(reviews[i]);
@@ -248,7 +263,7 @@ public class ReviewStore implements IReviewStore {
     public Review[] getReviewsByRestaurantID(Long id) {
         // TODO
         MyArrayList<Review> aux = new MyArrayList<Review>();
-        Review[] reviews = getReviews();
+        Review[] reviews = toArray(reviewTree.toArrayList());
         for (int i = 0; i < reviews.length; i++)
             if (reviews[i].getRestaurantID().equals(id))
                 aux.add(reviews[i]);
@@ -262,7 +277,7 @@ public class ReviewStore implements IReviewStore {
     public float getAverageCustomerReviewRating(Long id) {
         // TODO
         int sum = 0, k = 0;
-        for (Review review : getReviews())
+        for (Review review : toArray(reviewTree.toArrayList()))
             if (review.getCustomerID().equals(id)) {
                 sum += review.getRating();
                 k++;
@@ -276,7 +291,7 @@ public class ReviewStore implements IReviewStore {
     public float getAverageRestaurantReviewRating(Long id) {
         // TODO
         int sum = 0, k = 0;
-        for (Review review : getReviews())
+        for (Review review : toArray(reviewTree.toArrayList()))
             if (review.getRestaurantID().equals(id)) {
                 sum += review.getRating();
                 k++;
@@ -291,8 +306,7 @@ public class ReviewStore implements IReviewStore {
         // TODO
         int[] res = new int[5];
 
-        int sum = 0, k = 0;
-        for (Review review : getReviews())
+        for (Review review : toArray(reviewTree.toArrayList()))
             if (review.getCustomerID().equals(id))
                 res[review.getRating() - 1]++;
 
@@ -303,8 +317,7 @@ public class ReviewStore implements IReviewStore {
         // TODO
         int[] res = new int[5];
 
-        int sum = 0, k = 0;
-        for (Review review : getReviews())
+        for (Review review : toArray(reviewTree.toArrayList()))
             if (review.getRestaurantID().equals(id))
                 res[review.getRating() - 1]++;
 
@@ -315,7 +328,7 @@ public class ReviewStore implements IReviewStore {
         // TODO
         MyHashtable<Long, Integer> customerReviews = new MyHashtable<>();
 
-        Review[] reviews = getReviews();
+        Review[] reviews = toArray(reviewTree.toArrayList());
 
         for (Review review : reviews) {
             if (!customerReviews.contains(review.getCustomerID()))
@@ -350,7 +363,7 @@ public class ReviewStore implements IReviewStore {
         // TODO
         MyHashtable<Long, Integer> restaurantReviews = new MyHashtable<>();
 
-        Review[] reviews = getReviews();
+        Review[] reviews = toArray(reviewTree.toArrayList());
 
         for (Review review : reviews) {
             if (!restaurantReviews.contains(review.getRestaurantID()))
@@ -383,12 +396,90 @@ public class ReviewStore implements IReviewStore {
 
     public Long[] getTopRatedRestaurants() {
         // TODO
-        return new Long[20];
+        MyHashtable<Long, Integer> restaurantReviewSum = new MyHashtable<>();
+        MyHashtable<Long, Integer> restaurantReviewCount = new MyHashtable<>();
+
+        Review[] reviews = toArray(reviewTree.toArrayList());
+
+        for (Review review : reviews) {
+            if (!restaurantReviewCount.contains(review.getRestaurantID())) {
+                restaurantReviewSum.add(review.getRestaurantID(), 0);
+                restaurantReviewCount.add(review.getRestaurantID(), 0);
+            }
+            restaurantReviewSum.add(review.getRestaurantID(), restaurantReviewSum.get(review.getRestaurantID()) + review.getRating());
+            restaurantReviewCount.add(review.getRestaurantID(), restaurantReviewCount.get(review.getRestaurantID()) + 1);
+        }
+
+        MyArrayList<Long> ids = restaurants.toArrayListofKeys();
+        MyArrayList<Long> dates = restaurants.toArrayList();
+
+        MyArrayList<TopObject> top = new MyArrayList<>();
+
+        for (int i = 0; i < ids.size(); i++)
+            if (restaurantReviewCount.contains(ids.get(i))) {
+                double rating;
+                if (restaurantReviewCount.get(ids.get(i)) == 0)
+                    rating = 0;
+                else
+                    rating = restaurantReviewSum.get(ids.get(i)) / (double) restaurantReviewCount.get(ids.get(i));
+                top.add(new TopObject(ids.get(i), rating, dates.get(i)));
+            }
+
+        TopObject[] topArr = new TopObject[top.size()];
+        for (int i = 0; i < topArr.length; i++)
+            topArr[i] = top.get(i);
+
+        Algorithms.sort(topArr, compTopRating);
+
+        Long[] ret = new Long[20];
+
+        for (int i = 0; i < 20; i++)
+            ret[i] = topArr[i].getId();
+
+        return ret;
     }
 
     public String[] getTopKeywordsForRestaurant(Long id) {
         // TODO
-        return new String[5];
+        String[] words = keywordChecker.getKeywords();
+        MyHashtable<String, Integer> wordTable = new MyHashtable<>();
+
+        for (String word : words)
+            wordTable.add(word, 0);
+
+        Review[] reviews = toArray(reviewTree.toArrayList());
+        for (int i = 0; i < reviews.length; i++)
+            if (reviews[i].getRestaurantID().equals(id))
+                for (String word : reviews[i].getReview().split("\\W+")) {
+                    word = word.toLowerCase();
+                    if (keywordChecker.isAKeyword(word))
+                        wordTable.add(word, wordTable.get(word) + 1);
+                }
+
+        MyKeyValuePair<String, Integer>[] top = new MyKeyValuePair[words.length];
+
+        for (int i = 0; i < top.length; i++)
+            top[i] = new MyKeyValuePair<String,Integer>(words[i], wordTable.get(words[i]));
+
+        Lambda<MyKeyValuePair<String, Integer>> topComp = new Lambda<MyKeyValuePair<String,Integer>>(){
+
+            @Override
+            public int call(MyKeyValuePair<String, Integer> a, MyKeyValuePair<String, Integer> b) {
+                if (a.getValue().equals(b.getValue()))
+                    return a.getKey().compareTo(b.getKey());
+                return b.getValue().compareTo(a.getValue());
+            }
+        };
+
+        Algorithms.sort(top, topComp);
+
+        String[] top5 = new String[5];
+
+        for (int i = 0; i < 5; i++)
+            if (top[i].getValue() > 0)
+                top5[i] = top[i].getKey();
+
+        return top5;
     }
 
     public Review[] getReviewsContaining(String searchTerm) {
