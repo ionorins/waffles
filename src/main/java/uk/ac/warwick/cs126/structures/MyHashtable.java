@@ -11,6 +11,7 @@ public class MyHashtable<K, V> {
     private int size;
     private int arraySize;
 
+    @SuppressWarnings("unchecked")
     public MyHashtable() {
         this.size = 0;
         this.arraySize = 11;
@@ -37,6 +38,7 @@ public class MyHashtable<K, V> {
      * @param key   the key
      * @param value the value corresponding to the key
      */
+    @SuppressWarnings("unchecked")
     public void add(K key, V value) {
         /**
          * remove key if already in table

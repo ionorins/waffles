@@ -22,7 +22,6 @@ public class CustomerStore implements ICustomerStore {
     private Lambda<Customer> idComp, nameComp;
 
     public CustomerStore() {
-        // Initialise variables here
         customerTree = new MyTree<Long, Customer>();
         blacklist = new MyHashtable<Long, Boolean>();
         dataChecker = new DataChecker();
@@ -98,10 +97,10 @@ public class CustomerStore implements ICustomerStore {
     }
 
     public boolean addCustomer(Customer customer) {
-        // TODO
         if (!dataChecker.isValid(customer) || blacklist.contains(customer.getID()))
             return false;
 
+        // check if customer is already in tree
         Customer check = this.getCustomer(customer.getID());
         if (check != null) {
             blacklist.add(customer.getID(), true);
@@ -114,7 +113,6 @@ public class CustomerStore implements ICustomerStore {
     }
 
     public boolean addCustomer(Customer[] customers) {
-        // TODO
         boolean success = true;
         for (Customer customer : customers) {
             success = this.addCustomer(customer) && success;
@@ -124,17 +122,14 @@ public class CustomerStore implements ICustomerStore {
     }
 
     public Customer getCustomer(Long id) {
-        // TODO
         return customerTree.search(id);
     }
 
     public Customer[] getCustomers() {
-        // TODO
-        return (Customer[]) toArray(customerTree.toArrayList());
+        return toArray(customerTree.toArrayList());
     }
 
     public Customer[] getCustomers(Customer[] customers) {
-        // TODO
         Customer[] aux = new Customer[customers.length];
         for (int i = 0; i < customers.length; i++)
             aux[i] = customers[i];
@@ -143,14 +138,12 @@ public class CustomerStore implements ICustomerStore {
     }
 
     public Customer[] getCustomersByName() {
-        // TODO
-        Customer[] aux = toArray(customerTree.toArrayList());
+        Customer[] aux = getCustomers();
         Algorithms.sort(aux, nameComp);
         return aux;
     }
 
     public Customer[] getCustomersByName(Customer[] customers) {
-        // TODO
         Customer[] aux = new Customer[customers.length];
         for (int i = 0; i < customers.length; i++)
             aux[i] = customers[i];
@@ -159,12 +152,14 @@ public class CustomerStore implements ICustomerStore {
     }
 
     public Customer[] getCustomersContaining(String searchTerm) {
-        // TODO
         if (searchTerm.equals(""))
             return new Customer[0];
-        String term = StringFormatter.convertAccentsFaster(searchTerm.toLowerCase());
+
+        String term = StringFormatter.convertAccentsFaster(searchTerm).toLowerCase();
         MyArrayList<Customer> customerArray = customerTree.toArrayList();
         MyArrayList<Customer> result = new MyArrayList<Customer>();
+
+        // iterate through every customer
         for (int i = 0; i < customerArray.size(); i++)
             if (customerArray.get(i).getLastName().toLowerCase().contains(term)
                     || customerArray.get(i).getFirstName().toLowerCase().contains(term))
@@ -175,6 +170,11 @@ public class CustomerStore implements ICustomerStore {
         return res;
     }
 
+    /**
+     * Converts MyArrayList<Customer> to Customer[]
+     * @param arr array to be converted
+     * @return converted array
+     */
     private Customer[] toArray(MyArrayList<Customer> arr) {
         Customer[] aux = new Customer[arr.size()];
         for (int i = 0; i < arr.size(); i++) {

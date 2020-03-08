@@ -13,20 +13,13 @@ public class MyTree<K extends Comparable<K>, V> {
         this.root = null;
     }
 
-    // public MyNode<K, V> getSmallest() {
-    //     MyNode<K, V> ret = this.root;
-    //     while (ret.getLeft() != null)
-    //         ret = ret.getLeft();
-    //     return ret;
-    // }
-
-    // public MyNode<K, V> getBiggest() {
-    //     MyNode<K, V> ret = this.root;
-    //     while (ret.getRight() != null)
-    //         ret = ret.getRight();
-    //     return ret;
-    // }
-
+    /**
+     * Search tree for key
+     *
+     * @param key  key to be searched for
+     * @param node root of the tree to be searched
+     * @return the value of the node with the search key if exists, otherwise null
+     */
     private V search(K key, MyNode<K, V> node) {
         if (node == null)
             return null;
@@ -37,6 +30,12 @@ public class MyTree<K extends Comparable<K>, V> {
         return search(key, node.getRight());
     }
 
+    /**
+     * Rotates tree to the right
+     *
+     * @param y root of the tree to be rotated
+     * @return new root of the rotated tree
+     */
     private MyNode<K, V> rotateRight(MyNode<K, V> y) {
         MyNode<K, V> x = y.getLeft();
         MyNode<K, V> t2 = x.getRight();
@@ -50,6 +49,12 @@ public class MyTree<K extends Comparable<K>, V> {
         return x;
     }
 
+    /**
+     * Rotates tree to the left
+     *
+     * @param x root of the tree to be rotated
+     * @return new root of the rotated tree
+     */
     private MyNode<K, V> rotateLeft(MyNode<K, V> x) {
         MyNode<K, V> y = x.getRight();
         MyNode<K, V> t2 = y.getLeft();
@@ -63,6 +68,12 @@ public class MyTree<K extends Comparable<K>, V> {
         return y;
     }
 
+    /**
+     * Returns inorder traversal containing values of the tree
+     *
+     * @param arr  array which will contain the transversal
+     * @param node root of the tree to be transversed
+     */
     private void toArrayList(MyArrayList<V> arr, MyNode<K, V> node) {
         if (node == null)
             return;
@@ -71,6 +82,12 @@ public class MyTree<K extends Comparable<K>, V> {
         toArrayList(arr, node.getRight());
     }
 
+    /**
+     * Returns inorder traversal containing keys of the tree
+     *
+     * @param arr  array which will contain the transversal
+     * @param node root of the tree to be transversed
+     */
     private void toArrayListOfKeys(MyArrayList<K> arr, MyNode<K, V> node) {
         if (node == null)
             return;
@@ -79,26 +96,51 @@ public class MyTree<K extends Comparable<K>, V> {
         toArrayListOfKeys(arr, node.getRight());
     }
 
+    /**
+     * Returns value of node with specified key
+     *
+     * @param key key of the node to be searched of
+     * @return value key of the node to be searched of
+     */
     public V search(K key) {
         return search(key, root);
     }
 
+    /**
+     * Checks if tree contains key
+     *
+     * @param key key to be searched for
+     * @return true if key is found, false otherwise
+     */
     public boolean contains(K key) {
         return search(key) != null;
     }
 
+    /**
+     * Inserts new node into tree
+     *
+     * @param key key of node to be inserted
+     * @param value value of node to be inserted
+     * @param node root of tree in which new node will be inserted
+     * @return root of new tree
+     * @throws IllegalArgumentException if key is already in tree
+     */
     private MyNode<K, V> insert(K key, V value, MyNode<K, V> node) throws IllegalArgumentException {
+        // insert node if at bottom of the tree
         if (node == null)
             return new MyNode<K, V>(key, value);
 
+        // throw error if key already exists
         if (key.compareTo(node.getKey()) == 0)
             throw new IllegalArgumentException("Key '" + node.getKey() + "' already inserted");
 
+        // search place to insert node
         if (key.compareTo(node.getKey()) < 0)
             node.setLeft(insert(key, value, node.getLeft()));
         else
             node.setRight(insert(key, value, node.getRight()));
 
+        // balance tree
         int dif = node.updateHeight();
 
         if (dif > 1 && node.getLeft().updateHeight() >= 0)
@@ -120,30 +162,39 @@ public class MyTree<K extends Comparable<K>, V> {
         return node;
     }
 
+    /**
+     * Adds node to the tree
+     *
+     * @param key   key of the new node
+     * @param value value of the new node
+     * @throws IllegalArgumentException if key is already in tree
+     */
     public void add(K key, V value) throws IllegalArgumentException {
         root = this.insert(key, value, root);
     }
 
+    /**
+     * Removes node from tree
+     *
+     * @param key key of node to be removed
+     * @param node root of tree from wich node will be removed
+     * @return root of tree with removed node
+     */
     private MyNode<K, V> remove(K key, MyNode<K, V> node) {
-        // STEP 1: PERFORM STANDARD BST DELETE
+        // node not found
         if (node == null)
             return node;
 
-        // If the key to be deleted is smaller than
-        // the root's key, then it lies in left subtree
+        // search node to remove
         if (key.compareTo(node.getKey()) < 0)
             node.setLeft(remove(key, node.getLeft()));
 
-        // If the key to be deleted is greater than the
-        // root's key, then it lies in right subtree
         else if (key.compareTo(node.getKey()) > 0)
             node.setRight(remove(key, node.getRight()));
 
-        // if key is same as root's key, then this is the node
-        // to be deleted
+        // node found
         else {
-
-            // node with only one child or no child
+            // trivial case when at least one of the children is a leaf
             if (node.getLeft() == null || node.getRight() == null) {
                 if (node.getLeft() == null && node.getRight() == null)
                     node = null;
@@ -152,27 +203,25 @@ public class MyTree<K extends Comparable<K>, V> {
                 else
                     node = node.getRight();
             } else {
-
-                // node with two children: Get the inorder
-                // successor (smallest in the right subtree)
+                // find inorder successor of removed node
                 MyNode<K, V> aux = node.getRight();
 
                 while (aux.getLeft() != null)
                     aux = aux.getLeft();
 
-                // Copy the inorder successor's data to this node
+                // replace node with successor
                 node.setKey(aux.getKey());
                 node.setValue(aux.getValue());
 
-                // Delete the inorder successor
+                // remove successor
                 node.setRight(remove(aux.getKey(), node.getRight()));
             }
         }
 
-        // If the tree had only one node then return
         if (node == null)
             return node;
 
+        // balance tree
         int dif = node.updateHeight();
 
         if (dif > 1 && node.getLeft().updateHeight() >= 0)
@@ -194,16 +243,31 @@ public class MyTree<K extends Comparable<K>, V> {
         return node;
     }
 
+    /**
+     * Removes node from tree
+     *
+     * @param key key of the node to be removed
+     */
     public void remove(K key) {
         root = remove(key, root);
     }
 
+    /**
+     * Returns inorder traversal containing values of the tree
+     *
+     * @return inorder traversal containing values of the tree
+     */
     public MyArrayList<V> toArrayList() {
         MyArrayList<V> arr = new MyArrayList<V>();
         toArrayList(arr, root);
         return arr;
     }
 
+    /**
+     * Returns inorder traversal containing keys of the tree
+     *
+     * @return inorder traversal containing keys of the tree
+     */
     public MyArrayList<K> toArrayListofKeys() {
         MyArrayList<K> arr = new MyArrayList<K>();
         toArrayListOfKeys(arr, root);

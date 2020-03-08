@@ -3,7 +3,6 @@ package uk.ac.warwick.cs126.stores;
 import uk.ac.warwick.cs126.interfaces.IRestaurantStore;
 import uk.ac.warwick.cs126.models.Cuisine;
 import uk.ac.warwick.cs126.models.EstablishmentType;
-import uk.ac.warwick.cs126.models.Place;
 import uk.ac.warwick.cs126.models.PriceRange;
 import uk.ac.warwick.cs126.models.Restaurant;
 import uk.ac.warwick.cs126.models.RestaurantDistance;
@@ -32,7 +31,6 @@ public class RestaurantStore implements IRestaurantStore {
     private ConvertToPlace convertToPlace;
 
     public RestaurantStore() {
-        // Initialise variables here
         restaurantTree = new MyTree<Long, Restaurant>();
         blacklist = new MyHashtable<Long, Boolean>();
         dataChecker = new DataChecker();
@@ -156,10 +154,10 @@ public class RestaurantStore implements IRestaurantStore {
     }
 
     public boolean addRestaurant(Restaurant restaurant) {
-        // TODO
         if (!dataChecker.isValid(restaurant) || blacklist.contains(restaurant.getID()))
             return false;
 
+        // check if restaurant is already in tree
         Restaurant check = this.getRestaurant(restaurant.getID());
         if (check != null) {
             blacklist.add(restaurant.getID(), true);
@@ -172,7 +170,6 @@ public class RestaurantStore implements IRestaurantStore {
     }
 
     public boolean addRestaurant(Restaurant[] restaurants) {
-        // TODO
         boolean success = true;
         for (Restaurant restaurant : restaurants) {
             success = this.addRestaurant(restaurant) && success;
@@ -182,17 +179,14 @@ public class RestaurantStore implements IRestaurantStore {
     }
 
     public Restaurant getRestaurant(Long id) {
-        // TODO
         return restaurantTree.search(id);
     }
 
     public Restaurant[] getRestaurants() {
-        // TODO
-        return (Restaurant[]) toArray(restaurantTree.toArrayList());
+        return toArray(restaurantTree.toArrayList());
     }
 
     public Restaurant[] getRestaurants(Restaurant[] restaurants) {
-        // TODO
         Restaurant[] aux = new Restaurant[restaurants.length];
         for (int i = 0; i < restaurants.length; i++)
             aux[i] = restaurants[i];
@@ -201,21 +195,18 @@ public class RestaurantStore implements IRestaurantStore {
     }
 
     public Restaurant[] getRestaurantsByName() {
-        // TODO
-        Restaurant[] aux = toArray(restaurantTree.toArrayList());
+        Restaurant[] aux = getRestaurants();
         Algorithms.sort(aux, nameComp);
         return aux;
     }
 
     public Restaurant[] getRestaurantsByDateEstablished() {
-        // TODO
-        Restaurant[] aux = toArray(restaurantTree.toArrayList());
+        Restaurant[] aux = getRestaurants();
         Algorithms.sort(aux, dateComp);
         return aux;
     }
 
     public Restaurant[] getRestaurantsByDateEstablished(Restaurant[] restaurants) {
-        // TODO
         Restaurant[] aux = new Restaurant[restaurants.length];
         for (int i = 0; i < restaurants.length; i++)
             aux[i] = restaurants[i];
@@ -224,19 +215,21 @@ public class RestaurantStore implements IRestaurantStore {
     }
 
     public Restaurant[] getRestaurantsByWarwickStars() {
-        // TODO
+
         MyArrayList<Restaurant> filtered = new MyArrayList<Restaurant>();
         MyArrayList<Restaurant> restaurants = restaurantTree.toArrayList();
+
+        // filters out restaurants with 0 stars
         for (int i = 0; i < restaurants.size(); i++)
             if (restaurants.get(i).getWarwickStars() > 0)
                 filtered.add(restaurants.get(i));
+
         Restaurant[] aux = toArray(filtered);
         Algorithms.sort(aux, starsComp);
         return aux;
     }
 
     public Restaurant[] getRestaurantsByRating(Restaurant[] restaurants) {
-        // TODO
         Restaurant[] aux = new Restaurant[restaurants.length];
         for (int i = 0; i < restaurants.length; i++)
             aux[i] = restaurants[i];
@@ -245,9 +238,10 @@ public class RestaurantStore implements IRestaurantStore {
     }
 
     public RestaurantDistance[] getRestaurantsByDistanceFrom(float latitude, float longitude) {
-        // TODO
-        Restaurant[] restaurants = toArray(restaurantTree.toArrayList());
+        Restaurant[] restaurants = getRestaurants();
         RestaurantDistance[] aux = new RestaurantDistance[restaurants.length];
+
+        // creates array with restaurants and distances form input coordinates
         for (int i = 0; i < restaurants.length; i++)
             aux[i] = new RestaurantDistance(restaurants[i], HaversineDistanceCalculator
                     .inKilometres(restaurants[i].getLatitude(), restaurants[i].getLongitude(), latitude, longitude));
@@ -258,8 +252,9 @@ public class RestaurantStore implements IRestaurantStore {
 
     public RestaurantDistance[] getRestaurantsByDistanceFrom(Restaurant[] restaurants, float latitude,
             float longitude) {
-        // TODO
         RestaurantDistance[] aux = new RestaurantDistance[restaurants.length];
+
+        // creates array with restaurants and distances form input coordinates
         for (int i = 0; i < restaurants.length; i++)
             aux[i] = new RestaurantDistance(restaurants[i], HaversineDistanceCalculator
                     .inKilometres(restaurants[i].getLatitude(), restaurants[i].getLongitude(), latitude, longitude));
@@ -269,15 +264,15 @@ public class RestaurantStore implements IRestaurantStore {
     }
 
     public Restaurant[] getRestaurantsContaining(String searchTerm) {
-        // TODO
         searchTerm = searchTerm.trim().replaceAll(" +", " ").toLowerCase();
         if (searchTerm.equals(""))
             return new Restaurant[0];
 
-        String term = StringFormatter.convertAccentsFaster(searchTerm);
+        String term = StringFormatter.convertAccentsFaster(searchTerm).toLowerCase();
         MyArrayList<Restaurant> restaurantArray = restaurantTree.toArrayList();
         MyArrayList<Restaurant> result = new MyArrayList<Restaurant>();
 
+        // iterates through every restaurant
         for (int i = 0; i < restaurantArray.size(); i++) {
             Restaurant restaurant = restaurantArray.get(i);
             if (restaurant.getName().toLowerCase().contains(term)
@@ -292,6 +287,11 @@ public class RestaurantStore implements IRestaurantStore {
         return res;
     }
 
+    /**
+     * Converts MyArrayList<Restaurant> to Restaurant[]
+     * @param arr array to be converted
+     * @return converted array
+     */
     private Restaurant[] toArray(MyArrayList<Restaurant> arr) {
         Restaurant[] aux = new Restaurant[arr.size()];
         for (int i = 0; i < arr.size(); i++) {
