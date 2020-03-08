@@ -17,6 +17,10 @@ public class MyList<E> {
         return this.head;
     }
 
+    public void setHead(MyListNode<E> head) {
+        this.head = head;
+    }
+
     public String toString() {
         if (head == null)
             return "[]";

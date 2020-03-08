@@ -17,17 +17,23 @@ import uk.ac.warwick.cs126.util.DataChecker;
 public class FavouriteStore implements IFavouriteStore {
 
     private MyTree<Long, Favourite> favouriteTree;
+    private MyHashtable<Long, MyTree<Long, Favourite>> favouriteTable;
     private MyHashtable<String, MyTree<Long, Favourite>> history;
     private MyHashtable<Long, String> blacklist;
     private DataChecker dataChecker;
     private Lambda<Favourite> compId, compDate, compRestaurant;
+    private Lambda<TopObject> compTop;
+    private MyTree<Long, Long> restaurants, customers;
 
     public FavouriteStore() {
         // Initialise variables here
-        favouriteTree = new MyTree<Long, Favourite>();
-        history = new MyHashtable<String, MyTree<Long, Favourite>>();
-        blacklist = new MyHashtable<Long, String>();
+        favouriteTree = new MyTree<>();
+        history = new MyHashtable<>();
+        blacklist = new MyHashtable<>();
+        favouriteTable = new MyHashtable<>();
         dataChecker = new DataChecker();
+        restaurants = new MyTree<>();
+        customers = new MyTree<>();
 
         compId = new Lambda<Favourite>() {
 
@@ -51,7 +57,22 @@ public class FavouriteStore implements IFavouriteStore {
 
             @Override
             public int call(Favourite a, Favourite b) {
-                return a.getRestaurantID().compareTo(b.getRestaurantID());
+                if (a.getDateFavourited().equals(b.getDateFavourited()))
+                    return a.getRestaurantID().compareTo(b.getRestaurantID());
+                return -a.getDateFavourited().compareTo(b.getDateFavourited());
+            }
+        };
+
+        compTop = new Lambda<TopObject>() {
+
+            @Override
+            public int call(TopObject a, TopObject b) {
+                if (a.getCount() == b.getCount()) {
+                    if (a.getDate().equals(b.getDate()))
+                        return a.getId().compareTo(b.getId());
+                    return b.getDate().compareTo(a.getDate());
+                }
+                return b.getCount() - a.getCount();
             }
         };
     }
@@ -128,7 +149,29 @@ public class FavouriteStore implements IFavouriteStore {
         if (history.get(key) == null) {
             favouriteTree.add(favourite.getID(), favourite);
 
+            Long date = customers.search(favourite.getCustomerID());
+            if (date == null)
+                customers.add(favourite.getCustomerID(), favourite.getDateFavourited().getTime());
+            else if (date.compareTo(favourite.getDateFavourited().getTime()) > 0) {
+                customers.remove(favourite.getCustomerID());
+                customers.add(favourite.getCustomerID(), favourite.getDateFavourited().getTime());
+            }
+
+            date = restaurants.search(favourite.getRestaurantID());
+            if (date == null)
+                restaurants.add(favourite.getRestaurantID(), favourite.getDateFavourited().getTime());
+            else if (date.compareTo(favourite.getDateFavourited().getTime()) > 0) {
+                restaurants.remove(favourite.getRestaurantID());
+                restaurants.add(favourite.getRestaurantID(), favourite.getDateFavourited().getTime());
+            }
+
             history.add(key, new MyTree<>());
+
+            if (!favouriteTable.contains(favourite.getCustomerID()))
+                favouriteTable.add(favourite.getCustomerID(), new MyTree<Long, Favourite>());
+
+            favouriteTable.get(favourite.getCustomerID()).add(favourite.getRestaurantID(), favourite);
+
             history.get(key).add(favourite.getDateFavourited().getTime(), favourite);
             return true;
         }
@@ -165,8 +208,8 @@ public class FavouriteStore implements IFavouriteStore {
 
     public Favourite getFavourite(Long id) {
         // TODO
-        if (blacklist.get(id) != null)
-            return null;
+        // if (blacklist.get(id) != null)
+        //     return null;
         return favouriteTree.search(id);
     }
 
@@ -204,106 +247,206 @@ public class FavouriteStore implements IFavouriteStore {
     }
 
     public Long[] getCommonFavouriteRestaurants(Long customer1ID, Long customer2ID) {
-        Favourite[] c1 = getFavouritesByCustomerID(customer1ID);
-        Favourite[] c2 = getFavouritesByCustomerID(customer2ID);
-        Algorithms.sort(c1, compRestaurant);
-        Algorithms.sort(c2, compRestaurant);
+        if (!favouriteTable.contains(customer1ID) || !favouriteTable.contains(customer2ID))
+            return new Long[0];
+        MyArrayList<Favourite> c1 = favouriteTable.get(customer1ID).toArrayList();
+        MyArrayList<Favourite> c2 = favouriteTable.get(customer2ID).toArrayList();
+        if (c1.size() == 0 || c2.size() == 0)
+            return new Long[0];
+
         MyArrayList<Favourite> aux = new MyArrayList<>();
         int i = 0, j = 0;
-        while (i < c1.length && j < c2.length) {
-            if (c1[i].getRestaurantID() == c2[j].getRestaurantID()) {
-                aux.add(c1[i].getDateFavourited().compareTo(c2[j].getDateFavourited()) > 0 ? c1[i] : c2[j]);
+        while (i < c1.size() && j < c2.size()) {
+            while (i < c1.size() && blacklist.contains(c1.get(i).getID()))
+                i++;
+            while (j < c2.size() && blacklist.contains(c2.get(j).getID()))
+                j++;
+
+            if (i == c1.size() || j == c2.size())
+                break;
+
+            if (c1.get(i) == c2.get(j)) {
+                aux.add(c1.get(i).getDateFavourited().compareTo(c2.get(j).getDateFavourited()) > 0 ? c1.get(i)
+                        : c2.get(j));
                 i++;
                 j++;
-            } else if (c1[i].getRestaurantID() < c2[j].getRestaurantID())
+            } else if (c1.get(i).getRestaurantID() < c2.get(j).getRestaurantID())
                 i++;
             else
                 j++;
         }
+
+        if (aux.size() == 0)
+            return new Long[0];
+
         Favourite[] arr = toArray(aux);
-        Algorithms.sort(arr, compDate);
+        Algorithms.sort(arr, compRestaurant);
         Long[] ret = new Long[arr.length];
+
         for (i = 0; i < ret.length; i++)
             ret[i] = arr[i].getRestaurantID();
-
         return ret;
-        // return new Long[0];
     }
 
     public Long[] getMissingFavouriteRestaurants(Long customer1ID, Long customer2ID) {
-        // MyArrayList<Long> c1 = favouriteTable.get(customer1ID).toArrayList();
-        // MyArrayList<Long> c2 = favouriteTable.get(customer2ID).toArrayList();
-        // MyArrayList<Long> aux = new MyArrayList<Long>();
-        // int i = 0, j = 0;
-        // while (i < c1.size() && j < c2.size()) {
-        // while (blacklist.contains(c1.get(i)))
-        // i++;
-        // while (blacklist.contains(c2.get(j)))
-        // j++;
+        if (!favouriteTable.contains(customer1ID) || !favouriteTable.contains(customer2ID))
+            return new Long[0];
+        MyArrayList<Favourite> c1 = favouriteTable.get(customer1ID).toArrayList();
+        MyArrayList<Favourite> c2 = favouriteTable.get(customer2ID).toArrayList();
+        if (c1.size() == 0 || c2.size() == 0)
+            return new Long[0];
 
-        // if (c1.get(i) == c2.get(j)) {
-        // i++;
-        // j++;
-        // } else if (c1.get(i) < c2.get(j))
-        // aux.add(c1.get(i++));
-        // else
-        // j++;
-        // }
+        MyArrayList<Favourite> aux = new MyArrayList<>();
+        int i = 0, j = 0;
+        while (i < c1.size() && j < c2.size()) {
+            while (i < c1.size() && blacklist.contains(c1.get(i).getID()))
+                i++;
+            while (j < c2.size() && blacklist.contains(c2.get(j).getID()))
+                j++;
 
-        // return toArrayL(aux);
-        return new Long[0];
+            if (i == c1.size() || j == c2.size())
+                break;
+
+            if (c1.get(i).getRestaurantID() == c2.get(j).getRestaurantID()) {
+                i++;
+                j++;
+            } else if (c1.get(i).getRestaurantID() < c2.get(j).getRestaurantID())
+                aux.add(c1.get(i++));
+            else
+                j++;
+        }
+
+        if (aux.size() == 0)
+            return new Long[0];
+
+        Favourite[] arr = toArray(aux);
+        Algorithms.sort(arr, compRestaurant);
+        Long[] ret = new Long[arr.length];
+
+        for (i = 0; i < ret.length; i++)
+            ret[i] = arr[i].getRestaurantID();
+        return ret;
     }
 
     public Long[] getNotCommonFavouriteRestaurants(Long customer1ID, Long customer2ID) {
-        // MyArrayList<Long> c1 = favouriteTable.get(customer1ID).toArrayList();
-        // MyArrayList<Long> c2 = favouriteTable.get(customer2ID).toArrayList();
-        // MyArrayList<Long> aux = new MyArrayList<Long>();
-        // int i = 0, j = 0;
-        // while (i < c1.size() && j < c2.size()) {
-        // while (blacklist.contains(c1.get(i)))
-        // i++;
-        // while (blacklist.contains(c2.get(j)))
-        // j++;
+        if (!favouriteTable.contains(customer1ID) || !favouriteTable.contains(customer2ID))
+            return new Long[0];
+        MyArrayList<Favourite> c1 = favouriteTable.get(customer1ID).toArrayList();
+        MyArrayList<Favourite> c2 = favouriteTable.get(customer2ID).toArrayList();
+        if (c1.size() == 0 || c2.size() == 0)
+            return new Long[0];
 
-        // if (c1.get(i) == c2.get(j)) {
-        // i++;
-        // j++;
-        // } else if (c1.get(i) < c2.get(j))
-        // aux.add(c1.get(i++));
-        // else
-        // aux.add(c2.get(j++));
-        // }
+        MyArrayList<Favourite> aux = new MyArrayList<>();
+        int i = 0, j = 0;
+        while (i < c1.size() && j < c2.size()) {
+            while (i < c1.size() && blacklist.contains(c1.get(i).getID()))
+                i++;
+            while (j < c2.size() && blacklist.contains(c2.get(j).getID()))
+                j++;
 
-        // while (i < c1.size())
-        // aux.add(c1.get(i++));
+            if (i == c1.size() || j == c2.size())
+                break;
 
-        // while (j < c2.size())
-        // aux.add(c2.get(j++));
+            if (c1.get(i).getRestaurantID() == c2.get(j).getRestaurantID()) {
+                i++;
+                j++;
+            } else if (c1.get(i).getRestaurantID() < c2.get(j).getRestaurantID())
+                aux.add(c1.get(i++));
+            else
+                aux.add(c2.get(j++));
+        }
 
-        // return toArrayL(aux);
-        return new Long[0];
+        while (i < c1.size())
+            aux.add(c1.get(i++));
+
+        while (j < c2.size())
+            aux.add(c2.get(j++));
+
+        if (aux.size() == 0)
+            return new Long[0];
+
+        Favourite[] arr = toArray(aux);
+        Algorithms.sort(arr, compRestaurant);
+        Long[] ret = new Long[arr.length];
+
+        for (i = 0; i < ret.length; i++)
+            ret[i] = arr[i].getRestaurantID();
+        return ret;
     }
 
     public Long[] getTopCustomersByFavouriteCount() {
         // TODO
-        return new Long[20];
+        MyHashtable<Long, Integer> customerFavourites = new MyHashtable<>();
+
+        Favourite[] favourites = getFavourites();
+
+        for (Favourite favourite : favourites) {
+            if (!customerFavourites.contains(favourite.getCustomerID()))
+                customerFavourites.add(favourite.getCustomerID(), 0);
+            customerFavourites.add(favourite.getCustomerID(), customerFavourites.get(favourite.getCustomerID()) + 1);
+        }
+
+        MyArrayList<Long> ids = customers.toArrayListofKeys();
+        MyArrayList<Long> dates = customers.toArrayList();
+
+        MyArrayList<TopObject> top = new MyArrayList<>();
+
+        for (int i = 0; i < ids.size(); i++)
+            if (customerFavourites.contains(ids.get(i)))
+                top.add(new TopObject(ids.get(i), customerFavourites.get(ids.get(i)), dates.get(i)));
+
+        TopObject[] topArr = new TopObject[top.size()];
+        for (int i = 0; i < topArr.length; i++)
+            topArr[i] = top.get(i);
+
+        Algorithms.sort(topArr, compTop);
+
+        Long[] ret = new Long[20];
+
+        for (int i = 0; i < 20; i++)
+            ret[i] = topArr[i].getId();
+
+        return ret;
     }
 
     public Long[] getTopRestaurantsByFavouriteCount() {
         // TODO
-        return new Long[20];
+        MyHashtable<Long, Integer> restaurantFavourites = new MyHashtable<>();
+
+        Favourite[] favourites = getFavourites();
+
+        for (Favourite favourite : favourites) {
+            if (!restaurantFavourites.contains(favourite.getRestaurantID()))
+                restaurantFavourites.add(favourite.getRestaurantID(), 0);
+            restaurantFavourites.add(favourite.getRestaurantID(),
+                    restaurantFavourites.get(favourite.getRestaurantID()) + 1);
+        }
+
+        MyArrayList<Long> ids = restaurants.toArrayListofKeys();
+        MyArrayList<Long> dates = restaurants.toArrayList();
+
+        MyArrayList<TopObject> top = new MyArrayList<>();
+
+        for (int i = 0; i < ids.size(); i++)
+            if (restaurantFavourites.contains(ids.get(i)))
+                top.add(new TopObject(ids.get(i), restaurantFavourites.get(ids.get(i)), dates.get(i)));
+
+        TopObject[] topArr = new TopObject[top.size()];
+        for (int i = 0; i < topArr.length; i++)
+            topArr[i] = top.get(i);
+
+        Algorithms.sort(topArr, compTop);
+
+        Long[] ret = new Long[20];
+
+        for (int i = 0; i < 20; i++)
+            ret[i] = topArr[i].getId();
+
+        return ret;
     }
 
     private Favourite[] toArray(MyArrayList<Favourite> arr) {
         Favourite[] aux = new Favourite[arr.size()];
-        for (int i = 0; i < arr.size(); i++) {
-            aux[i] = arr.get(i);
-        }
-        return aux;
-    }
-
-    private Long[] toArrayL(MyArrayList<Long> arr) {
-        Long[] aux = new Long[arr.size()];
         for (int i = 0; i < arr.size(); i++) {
             aux[i] = arr.get(i);
         }

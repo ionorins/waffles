@@ -66,6 +66,14 @@ public class MyTree<K extends Comparable<K>, V> {
         toArrayList(arr, node.getRight());
     }
 
+    private void toArrayListOfKeys(MyArrayList<K> arr, MyNode<K, V> node) {
+        if (node == null)
+            return;
+        toArrayListOfKeys(arr, node.getLeft());
+        arr.add(node.getKey());
+        toArrayListOfKeys(arr, node.getRight());
+    }
+
     public V search(K key) {
         return search(key, root);
     }
@@ -188,6 +196,12 @@ public class MyTree<K extends Comparable<K>, V> {
     public MyArrayList<V> toArrayList() {
         MyArrayList<V> arr = new MyArrayList<V>();
         toArrayList(arr, root);
+        return arr;
+    }
+
+    public MyArrayList<K> toArrayListofKeys() {
+        MyArrayList<K> arr = new MyArrayList<K>();
+        toArrayListOfKeys(arr, root);
         return arr;
     }
 

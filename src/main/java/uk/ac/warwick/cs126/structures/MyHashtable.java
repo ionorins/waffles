@@ -20,6 +20,19 @@ public class MyHashtable<K, V> {
     }
 
     public void add(K key, V value) {
+        MyListNode<MyKeyValuePair<K, V>> crt = array[getHash(key)].getHead();
+
+        if (crt != null && crt.getValue().getKey().equals(key))
+            array[getHash(key)].setHead(crt.getNext());
+        while (crt != null && crt.getNext() != null) {
+            if (crt.getNext().getValue().getKey().equals(key))
+                crt.setNext(crt.getNext().getNext());
+            crt = crt.getNext();
+        }
+
+        if (crt != null && crt.getNext() != null && crt.getNext().getValue().getKey().equals(key))
+            crt.setNext(null);
+
         array[getHash(key)].add(new MyKeyValuePair<K, V>(key, value));
         size++;
 
