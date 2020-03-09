@@ -15,7 +15,7 @@ public class HaversineDistanceCalculator {
         return x * Math.PI / 180;
     }
 
-    public static float inKilometres(float lat1, float lon1, float lat2, float lon2) {
+    public static double inKilometresDouble(float lat1, float lon1, float lat2, float lon2) {
         double lat1r = toRad(lat1);
         double lat2r = toRad(lat2);
         double lon1r = toRad(lon1);
@@ -25,11 +25,15 @@ public class HaversineDistanceCalculator {
                 + Math.cos(lat1r) * Math.cos(lat2r) * Math.sin((lon2r - lon1r) / 2) * Math.sin((lon2r - lon1r) / 2);
         double c = 2 * Math.asin(Math.sqrt(a));
         double d = R * c;
-        return (float) Math.round(d * 10) / 10;
+        return d;
+    }
+
+    public static float inKilometres(float lat1, float lon1, float lat2, float lon2) {
+        return (float) Math.round(inKilometresDouble(lat1, lon1, lat2, lon2) * 10) / 10;
     }
 
     public static float inMiles(float lat1, float lon1, float lat2, float lon2) {
-        return (float) Math.round(inKilometres(lat1, lon1, lat2, lon2) / kilometresInAMile * 10) / 10;
+        return (float) Math.round(inKilometresDouble(lat1, lon1, lat2, lon2) / kilometresInAMile * 10) / 10;
     }
 
 }
