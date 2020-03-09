@@ -21,11 +21,16 @@ public class DataChecker implements IDataChecker {
     }
 
     public boolean isValid(Long inputID) {
+        if (inputID < 0)
+            return false;
+
         int[] count = new int[10];
         int len = 0;
 
         while (inputID > 0) {
             len++;
+            if (len > 16)
+                return false;
             int digit = (int) (inputID % 10);
             count[digit]++;
             if (count[digit] > 3)

@@ -154,15 +154,17 @@ public class CustomerStore implements ICustomerStore {
     public Customer[] getCustomersContaining(String searchTerm) {
         if (searchTerm.equals(""))
             return new Customer[0];
-
+            
+        searchTerm = searchTerm.trim().replaceAll(" +", " ").toLowerCase();
         String term = StringFormatter.convertAccentsFaster(searchTerm).toLowerCase();
         MyArrayList<Customer> customerArray = customerTree.toArrayList();
         MyArrayList<Customer> result = new MyArrayList<Customer>();
 
         // iterate through every customer
         for (int i = 0; i < customerArray.size(); i++)
-            if (customerArray.get(i).getLastName().toLowerCase().contains(term)
-                    || customerArray.get(i).getFirstName().toLowerCase().contains(term))
+            if (StringFormatter.convertAccentsFaster(customerArray.get(i).getLastName()).toLowerCase().contains(term)
+                    || StringFormatter.convertAccentsFaster(customerArray.get(i).getFirstName()).toLowerCase()
+                            .contains(term))
                 result.add(customerArray.get(i));
 
         Customer[] res = toArray(result);
@@ -172,6 +174,7 @@ public class CustomerStore implements ICustomerStore {
 
     /**
      * Converts MyArrayList<Customer> to Customer[]
+     * 
      * @param arr array to be converted
      * @return converted array
      */

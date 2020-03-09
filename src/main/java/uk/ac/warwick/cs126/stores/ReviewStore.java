@@ -516,7 +516,7 @@ public class ReviewStore implements IReviewStore {
         // iterate through every review
         for (int i = 0; i < reviewArray.size(); i++) {
             Review review = reviewArray.get(i);
-            if (review.getReview().toLowerCase().contains(term))
+            if (StringFormatter.convertAccentsFaster(review.getReview().toLowerCase()).contains(term))
                 result.add(reviewArray.get(i));
         }
 

@@ -71,8 +71,8 @@ public class MyTree<K extends Comparable<K>, V> {
     /**
      * Returns inorder traversal containing values of the tree
      *
-     * @param arr  array which will contain the transversal
-     * @param node root of the tree to be transversed
+     * @param arr  array which will contain the traversal
+     * @param node root of the tree to be traversed
      */
     private void toArrayList(MyArrayList<V> arr, MyNode<K, V> node) {
         if (node == null)
@@ -85,8 +85,8 @@ public class MyTree<K extends Comparable<K>, V> {
     /**
      * Returns inorder traversal containing keys of the tree
      *
-     * @param arr  array which will contain the transversal
-     * @param node root of the tree to be transversed
+     * @param arr  array which will contain the traversal
+     * @param node root of the tree to be traversed
      */
     private void toArrayListOfKeys(MyArrayList<K> arr, MyNode<K, V> node) {
         if (node == null)

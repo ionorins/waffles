@@ -12,17 +12,18 @@
 <!-- * <- is a bullet point, you can also use - minuses or + pluses instead -->
 <!-- And this is *italic* and this is **bold** -->
 <!-- Words in the grave accents, or in programming terms backticks, formats it as code: `put code here` -->
-* I have used an `ArrayList` structure to store and process customers because it was easy to implement.
-* I used `BubbleSort` to sort customers by name and ID because I want my code to be inefficient.
-
+* I used an AVL tree structure to store and process customers because it is efficient when inserting, deleting and searching.
+* I used Quicksort to sort customers by name because it has the lowest possible complexity in terms of time and space.
+* I used a hash table for the blacklist because of the constant time both when storing an searching for an ID
+  
 ### Space Complexity
 <!-- Write here what you think the overall store space complexity is and gives a brief reason why. -->
 <!-- <br> gives a line break -->
 <!-- In tables, you don't really need the spaces, it only makes it look nice in text form -->
 <!-- You can just do "CustomerStore|O(n)|I have used a single `ArrayList` to store customers." -->
-Store         | Worst Case | Description
-------------- | ---------- | -----------
-CustomerStore | O(n)       | I have used a single `ArrayList` to store customers. <br>Where `n` is total customers added.
+| Store         | Worst Case | Description                                            |
+| ------------- | ---------- | ------------------------------------------------------ |
+| CustomerStore | O(n)       | each customer is stored at most once in each structure |
 
 ### Time Complexity
 <!-- Tell us the time complexity of each method and give a very short description. -->
@@ -38,16 +39,16 @@ CustomerStore | O(n)       | I have used a single `ArrayList` to store customers
 <!-- Where n is the total number of customers -->
 <!-- But you can keep it simple -->
 
-Method                           | Average Case     | Description
--------------------------------- | ---------------- | -----------
-addCustomer(Customer c)          | O(logn)             | Tree insert is logn
-addCustomer(Customer[] c)        | O(nlogn)             | Add all customers <br>`n` is the length of the input array
-getCustomer(Long id)             | O(n)             | Linear search <br>`n` is total customers in the store
-getCustomers()                   | O(n^2)           | BubbleSort <br>`n` is total customers in the store
-getCustomers(Customer[] c)       | O(n^2)           | BubbleSort <br>`n` is the length of the input array
-getCustomersByName()             | O(n^2)           | BubbleSort <br>`n` is total customers in the store
-getCustomersByName(Customer[] c) | -                | -
-getCustomersContaining(String s) | O(a + n*(a + b)) | Searches all customers <br>`a` is the average time it takes to convert accents <br>`n` is total customers <br>`b` is average string search time
+| Method                           | Average Case | Description                                                                                             |
+| -------------------------------- | ------------ | ------------------------------------------------------------------------------------------------------- |
+| addCustomer(Customer c)          | O(logn)      | Tree insert is logn                                                                                     |
+| addCustomer(Customer[] c)        | O(nlogn)     | n customers inserted with complexity of logn                                                            |
+| getCustomer(Long id)             | O(logn)      | Search in binary tree is logn                                                                           |
+| getCustomers()                   | O(n)         | Inorder traversal of tree is n                                                                          |
+| getCustomers(Customer[] c)       | O(nlogn)     | Quicksort                                                                                               |
+| getCustomersByName()             | O(nlogn)     | Quicksort                                                                                               |
+| getCustomersByName(Customer[] c) | O(nlogn)     | Quicksort                                                                                               |
+| getCustomersContaining(String s) | O(n*(l+s))   | For each customer (`n`), converts string (`l` - length of string) and searches for the term in it (`s`) |
 
 <!-- Don't delete these <div>s! -->
 <!-- And note the spacing, do not change -->
@@ -58,61 +59,66 @@ getCustomersContaining(String s) | O(a + n*(a + b)) | Searches all customers <br
 
 ## FavouriteStore
 ### Overview
-* I have used `...` to store favourites ...
-* I used `...` to sort ...
-* To get favourites by ...
-* To get ...
-* To get top ...
+* I used an AVL tree structure to store and process favourites because it is efficient when inserting, deleting and searching.
+* I used Quicksort for sorting because it has the lowest possible complexity in terms of time and space.
+* I used a hash table for the blacklist because of the constant time both when storing an searching for an ID
+* I used a hash table to store last date favourited for each customer and restaurant
+* I used a hash table of trees to store history of favourites for each customer-restaurant pair
+* I used a hash table of trees to store the favourites for each customer
+* I used merging algorithms for set operations
+* Tops are computed by counting the favourites for each customer/restaurants and sorting the resulting array.
+NOTE: A sorting approach is preferable to a linear approach, as the latter would require 20 iterations and nlogn < n for n < 2^20 = 1048576
 
 ### Space Complexity
-Store          | Worst Case | Description
--------------- | ---------- | -----------
-FavouriteStore | O(...)     | I have used `...` ... <br>Where `...` is ...
+| Store          | Worst Case | Description                                                                                   |
+| -------------- | ---------- | --------------------------------------------------------------------------------------------- |
+| FavouriteStore | O(n+c+r)   | Each favourite (`n`), customer (`c`) and restaurant (`r`) at most once in each data structure |
 
 ### Time Complexity
-Method                                                          | Average Case     | Description
---------------------------------------------------------------- | ---------------- | -----------
-addFavourite(Favourite f)                                       | O(...)           | Description <br>`...` is ...
-addFavourite(Favourite[] f)                                     | O(...)           | Description <br>`...` is ...
-getFavourite(Long id)                                           | O(...)           | Description <br>`...` is ...
-getFavourites()                                                 | O(...)           | Description <br>`...` is ...
-getFavourites(Favourite[] f)                                    | O(...)           | Description <br>`...` is ...
-getFavouritesByCustomerID(Long id)                              | O(...)           | Description <br>`...` is ...
-getFavouritesByRestaurantID(Long id)                            | O(...)           | Description <br>`...` is ...
-getCommonFavouriteRestaurants(<br>&emsp; Long id1, Long id2)    | O(...)           | Description <br>`...` is ...
-getMissingFavouriteRestaurants(<br>&emsp; Long id1, Long id2)   | O(...)           | Description <br>`...` is ...
-getNotCommonFavouriteRestaurants(<br>&emsp; Long id1, Long id2) | O(...)           | Description <br>`...` is ...
-getTopCustomersByFavouriteCount()                               | O(...)           | Description <br>`...` is ...
-getTopRestaurantsByFavouriteCount()                             | O(...)           | Description <br>`...` is ...
+| Method                                                          | Average Case | Description                                                     |
+| --------------------------------------------------------------- | ------------ | --------------------------------------------------------------- |
+| addFavourite(Favourite f)                                       | O(logn)      | Tree insert                                                     |
+| addFavourite(Favourite[] f)                                     | O(nlogn)     | n items inserted with logn complexity                           |
+| getFavourite(Long id)                                           | O(logn)      | Tree search                                                     |
+| getFavourites()                                                 | O(n)         | Inorder traversal                                               |
+| getFavourites(Favourite[] f)                                    | O(nlogn)     | Quicksort                                                       |
+| getFavouritesByCustomerID(Long id)                              | O(n)         | Linear search                                                   |
+| getFavouritesByRestaurantID(Long id)                            | O(n)         | Linear search                                                   |
+| getCommonFavouriteRestaurants(<br>&emsp; Long id1, Long id2)    | O(n)         | Merge algorithm                                                 |
+| getMissingFavouriteRestaurants(<br>&emsp; Long id1, Long id2)   | O(n)         | Modified merge algorithm                                        |
+| getNotCommonFavouriteRestaurants(<br>&emsp; Long id1, Long id2) | O(n)         | Modified merge algorithm                                        |
+| getTopCustomersByFavouriteCount()                               | O(n+clogc)   | Count favourites and sort results (`c` - number of customers)   |
+| getTopRestaurantsByFavouriteCount()                             | O(n+rlogr)   | Count favourites and sort results (`r` - number of restaurants) |
 
 <div style="page-break-after: always;"></div>
 
 ## RestaurantStore
 ### Overview
-* I have used `...` to store restaurants ...
-* I used `...` to sort ...
+* I used an AVL tree structure to store and process customers because it is efficient when inserting, deleting and searching.
+* I used Quicksort to sort customers by name because it has the lowest possible complexity in terms of time and space.
+* I used a hash table for the blacklist because of the constant time both when storing an searching for an ID
 
 ### Space Complexity
-Store           | Worst Case | Description
---------------- | ---------- | -----------
-RestaurantStore | O(...)     | I have used `...` ... <br>Where `...` is ...
+| Store           | Worst Case | Description                                  |
+| --------------- | ---------- | -------------------------------------------- |
+| RestaurantStore | O(...)     | I have used `...` ... <br>Where `...` is ... |
 
 ### Time Complexity
-Method                                                                        | Average Case     | Description
------------------------------------------------------------------------------ | ---------------- | -----------
-addRestaurant(Restaurant r)                                                   | O(...)           | Description <br>`...` is ...
-addRestaurant(Restaurant[] r)                                                 | O(...)           | Description <br>`...` is ...
-getRestaurant(Long id)                                                        | O(...)           | Description <br>`...` is ...
-getRestaurants()                                                              | O(...)           | Description <br>`...` is ...
-getRestaurants(Restaurant[] r)                                                | O(...)           | Description <br>`...` is ...
-getRestaurantsByName()                                                        | O(...)           | Description <br>`...` is ...
-getRestaurantsByDateEstablished()                                             | O(...)           | Description <br>`...` is ...
-getRestaurantsByDateEstablished(<br>&emsp; Restaurant[] r)                    | O(...)           | Description <br>`...` is ...
-getRestaurantsByWarwickStars()                                                | O(...)           | Description <br>`...` is ...
-getRestaurantsByRating(Restaurant[] r)                                        | O(...)           | Description <br>`...` is ...
-getRestaurantsByDistanceFrom(<br>&emsp; float lat, float lon)                 | O(...)           | Description <br>`...` is ...
-getRestaurantsByDistanceFrom(<br>&emsp; Restaurant[] r, float lat, float lon) | O(...)           | Description <br>`...` is ...
-getRestaurantsContaining(String s)                                            | O(...)           | Description <br>`...` is ...
+| Method                                                                        | Average Case | Description                                    |
+| ----------------------------------------------------------------------------- | ------------ | ---------------------------------------------- |
+| addRestaurant(Restaurant r)                                                   | O(logn)      | Tree insert                                    |
+| addRestaurant(Restaurant[] r)                                                 | O(nlogn)     | n restaurants inserted with complexity of logn |
+| getRestaurant(Long id)                                                        | O(logn)      | Tree search                                    |
+| getRestaurants()                                                              | O(n)         | Inorder traversal                              |
+| getRestaurants(Restaurant[] r)                                                | O(nlogn)     | Quicksort                                      |
+| getRestaurantsByName()                                                        | O(nlogn)     | Quicksort                                      |
+| getRestaurantsByDateEstablished()                                             | O(nlogn)     | Quicksort                                      |
+| getRestaurantsByDateEstablished(<br>&emsp; Restaurant[] r)                    | O(nlogn)     | Quicksort                                      |
+| getRestaurantsByWarwickStars()                                                | O(nlogn)     | Quicksort                                      |
+| getRestaurantsByRating(Restaurant[] r)                                        | O(nlogn)     | Quicksort                                      |
+| getRestaurantsByDistanceFrom(<br>&emsp; float lat, float lon)                 | O(nlogn)     | Quicksort                                      |
+| getRestaurantsByDistanceFrom(<br>&emsp; Restaurant[] r, float lat, float lon) | O(nlogn)     | Quicksort                                      |
+| getRestaurantsContaining(String s)                                            | O(n*(l+s))   | For each restaurant (`n`), converts string (`l` - length of string) and searches for the term in it (`s`) |
 
 <div style="page-break-after: always;"></div>
 
@@ -124,67 +130,68 @@ getRestaurantsContaining(String s)                                            | 
 * To get top ...
 
 ### Space Complexity
-Store           | Worst Case | Description
---------------- | ---------- | -----------
-ReviewStore     | O(...)     | I have used `...` ... <br>Where `...` is ...
+| Store       | Worst Case | Description                                  |
+| ----------- | ---------- | -------------------------------------------- |
+| ReviewStore | O(...)     | I have used `...` ... <br>Where `...` is ... |
 
 ### Time Complexity
-Method                                     | Average Case     | Description
------------------------------------------- | ---------------- | -----------
-addReview(Review r)                        | O(...)           | Description <br>`...` is ...
-addReview(Review[] r)                      | O(...)           | Description <br>`...` is ...
-getReview(Long id)                         | O(...)           | Description <br>`...` is ...
-getReviews()                               | O(...)           | Description <br>`...` is ...
-getReviews(Review[] r)                     | O(...)           | Description <br>`...` is ...
-getReviewsByDate()                         | O(...)           | Description <br>`...` is ...
-getReviewsByRating()                       | O(...)           | Description <br>`...` is ...
-getReviewsByRestaurantID(Long id)          | O(...)           | Description <br>`...` is ...
-getReviewsByCustomerID(Long id)            | O(...)           | Description <br>`...` is ...
-getAverageCustomerReviewRating(Long id)    | O(...)           | Description <br>`...` is ...
-getAverageRestaurantReviewRating(Long id)  | O(...)           | Description <br>`...` is ...
-getCustomerReviewHistogramCount(Long id)   | O(...)           | Description <br>`...` is ...
-getRestaurantReviewHistogramCount(Long id) | O(...)           | Description <br>`...` is ...
-getTopCustomersByReviewCount()             | O(...)           | Description <br>`...` is ...
-getTopRestaurantsByReviewCount()           | O(...)           | Description <br>`...` is ...
-getTopRatedRestaurants()                   | O(...)           | Description <br>`...` is ...
-getTopKeywordsForRestaurant(Long id)       | O(...)           | Description <br>`...` is ...
-getReviewsContaining(String s)             | O(...)           | Description <br>`...` is ...
+| Method                                     | Average Case | Description                  |
+| ------------------------------------------ | ------------ | ---------------------------- |
+| addReview(Review r)                        | O(...)       | Description <br>`...` is ... |
+| addReview(Review[] r)                      | O(...)       | Description <br>`...` is ... |
+| getReview(Long id)                         | O(...)       | Description <br>`...` is ... |
+| getReviews()                               | O(...)       | Description <br>`...` is ... |
+| getReviews(Review[] r)                     | O(...)       | Description <br>`...` is ... |
+| getReviewsByDate()                         | O(...)       | Description <br>`...` is ... |
+| getReviewsByRating()                       | O(...)       | Description <br>`...` is ... |
+| getReviewsByRestaurantID(Long id)          | O(...)       | Description <br>`...` is ... |
+| getReviewsByCustomerID(Long id)            | O(...)       | Description <br>`...` is ... |
+| getAverageCustomerReviewRating(Long id)    | O(...)       | Description <br>`...` is ... |
+| getAverageRestaurantReviewRating(Long id)  | O(...)       | Description <br>`...` is ... |
+| getCustomerReviewHistogramCount(Long id)   | O(...)       | Description <br>`...` is ... |
+| getRestaurantReviewHistogramCount(Long id) | O(...)       | Description <br>`...` is ... |
+| getTopCustomersByReviewCount()             | O(...)       | Description <br>`...` is ... |
+| getTopRestaurantsByReviewCount()           | O(...)       | Description <br>`...` is ... |
+| getTopRatedRestaurants()                   | O(...)       | Description <br>`...` is ... |
+| getTopKeywordsForRestaurant(Long id)       | O(...)       | Description <br>`...` is ... |
+| getReviewsContaining(String s)             | O(...)       | Description <br>`...` is ... |
 
 <div style="page-break-after: always;"></div>
 
 ## Util
 ### Overview
 * **ConvertToPlace**
-    * ...
+    * Searches in a hash table with coordinates and places
 * **DataChecker**
-    * ...
+    * `extractTrueID` checks ids two by two, `isValid(Long inputID)` creates a frequency array with the digits of the id,
+      the others just check if the attributes of the object are not null and valid
 * **HaversineDistanceCalculator (HaversineDC)**
-    * ...
+    * Just applies mathematical formula
 * **KeywordChecker**
-    * ...
+    * Searches in a hash table of keywords
 * **StringFormatter**
-    * ...
+    * Interates through each characters, converts it if necessary, appends result to new string
 
 ### Space Complexity
-Util               | Worst Case | Description
--------------------| ---------- | -----------
-ConvertToPlace     | O(...)     | ...
-DataChecker        | O(...)     | ...
-HaversineDC        | O(...)     | ...
-KeywordChecker     | O(...)     | ...
-StringFormatter    | O(...)     | ...
+| Util            | Worst Case | Description                                                           |
+| --------------- | ---------- | --------------------------------------------------------------------- |
+| ConvertToPlace  | O(p)       | Hash table containing coordinates and places (`p` - number of places) |
+| DataChecker     | O(1)       | Nothing in particular is stored                                       |
+| HaversineDC     | O(1)       | Nothing in particular is stored                                       |
+| KeywordChecker  | O(k)       | Hash table containing keywords (`k` - number of keywords)             |
+| StringFormatter | O(1)       | Nothing in particular is stored                                       |
 
 ### Time Complexity
-Util              | Method                                                                             | Average Case     | Description
------------------ | ---------------------------------------------------------------------------------- | ---------------- | -----------
-ConvertToPlace    | convert(float lat, float lon)                                                      | O(...)           | ...
-DataChecker       | extractTrueID(String[] repeatedID)                                                 | O(...)           | ...
-DataChecker       | isValid(Long id)                                                                   | O(...)           | ...
-DataChecker       | isValid(Customer customer)                                                         | O(...)           | ...
-DataChecker       | isValid(Favourite favourite)                                                       | O(...)           | ...
-DataChecker       | isValid(Restaurant restaurant)                                                     | O(...)           | ...
-DataChecker       | isValid(Review review)                                                             | O(...)           | ...
-HaversineDC       | inKilometres(<br>&emsp; float lat1, float lon1, <br>&emsp; float lat2, float lon2) | O(...)           | ...
-HaversineDC       | inMiles(<br>&emsp; float lat1, float lon1, <br>&emsp; float lat2, float lon2)      | O(...)           | ...
-KeywordChecker    | isAKeyword(String s)                                                               | O(...)           | ...
-StringFormatter   | convertAccentsFaster(String s)                                                     | O(...)           | ...
+| Util            | Method                                                                             | Average Case | Description                   |
+| --------------- | ---------------------------------------------------------------------------------- | ------------ | ----------------------------- |
+| ConvertToPlace  | convert(float lat, float lon)                                                      | O(1)         | Hash table look up            |
+| DataChecker     | extractTrueID(String[] repeatedID)                                                 | O(1)         | Constant number of operations |
+| DataChecker     | isValid(Long id)                                                                   | O(1)         | Constant number of operations |
+| DataChecker     | isValid(Customer customer)                                                         | O(1)         | Constant number of operations |
+| DataChecker     | isValid(Favourite favourite)                                                       | O(1)         | Constant number of operations |
+| DataChecker     | isValid(Restaurant restaurant)                                                     | O(1)         | Constant number of operations |
+| DataChecker     | isValid(Review review)                                                             | O(1)         | Constant number of operations |
+| HaversineDC     | inKilometres(<br>&emsp; float lat1, float lon1, <br>&emsp; float lat2, float lon2) | O(1)         | Applies formula               |
+| HaversineDC     | inMiles(<br>&emsp; float lat1, float lon1, <br>&emsp; float lat2, float lon2)      | O(1)         | Applies formula               |
+| KeywordChecker  | isAKeyword(String s)                                                               | O(1)         | Hash table look up            |
+| StringFormatter | convertAccentsFaster(String s)                                                     | O(l)         | `l` - length of string        |

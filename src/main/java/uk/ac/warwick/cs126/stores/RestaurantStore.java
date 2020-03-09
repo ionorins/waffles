@@ -275,9 +275,12 @@ public class RestaurantStore implements IRestaurantStore {
         // iterates through every restaurant
         for (int i = 0; i < restaurantArray.size(); i++) {
             Restaurant restaurant = restaurantArray.get(i);
-            if (restaurant.getName().toLowerCase().contains(term)
-                    || restaurant.getCuisine().toString().toLowerCase().contains(term)
-                    || convertToPlace.convert(restaurant.getLatitude(), restaurant.getLongitude()).getName()
+            if (StringFormatter.convertAccentsFaster(restaurant.getName()).toLowerCase().contains(term)
+                    || StringFormatter.convertAccentsFaster(restaurant.getCuisine().toString()).toLowerCase()
+                            .contains(term)
+                    || StringFormatter
+                            .convertAccentsFaster(convertToPlace
+                                    .convert(restaurant.getLatitude(), restaurant.getLongitude()).getName())
                             .toLowerCase().contains(term))
                 result.add(restaurantArray.get(i));
         }
@@ -289,6 +292,7 @@ public class RestaurantStore implements IRestaurantStore {
 
     /**
      * Converts MyArrayList<Restaurant> to Restaurant[]
+     * 
      * @param arr array to be converted
      * @return converted array
      */

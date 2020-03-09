@@ -3198,13 +3198,13 @@ public class StringFormatter {
         if (str == null)
             return "";
 
-        String res = "";
+        StringBuilder res = new StringBuilder();
 
         char[] chars = str.toCharArray();
         for (int i = 0; i < chars.length; i++)
-            res = res.concat(convertChar(chars[i]));
+            res.append(convertChar(chars[i]));
 
-        return res;
+        return res.toString();
     }
 
     public static String convertAccents(String str) {
