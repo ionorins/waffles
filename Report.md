@@ -23,7 +23,7 @@
 <!-- You can just do "CustomerStore|O(n)|I have used a single `ArrayList` to store customers." -->
 | Store         | Worst Case | Description                                            |
 | ------------- | ---------- | ------------------------------------------------------ |
-| CustomerStore | O(n)       | each customer is stored at most once in each structure |
+| CustomerStore | O(n)       | Each customer is stored at most once in each structure |
 
 ### Time Complexity
 <!-- Tell us the time complexity of each method and give a very short description. -->
@@ -66,13 +66,14 @@
 * I used a hash table of trees to store history of favourites for each customer-restaurant pair
 * I used a hash table of trees to store the favourites for each customer
 * I used merging algorithms for set operations
-* Tops are computed by counting the favourites for each customer/restaurants and sorting the resulting array.
-NOTE: A sorting approach is preferable to a linear approach, as the latter would require 20 iterations and nlogn < n for n < 2^20 = 1048576
+* Tops are computed by counting the favourites for each customer/restaurant and sorting the resulting array.
+NOTE: A sorting approach is preferable to a linear approach, as the latter would require 20 iterations and nlogn < 20n for n < 2^20 = 1048576.
+* Time complexity is given assuming that edge cases occur negligibly rarely
 
 ### Space Complexity
-| Store          | Worst Case | Description                                                                                   |
-| -------------- | ---------- | --------------------------------------------------------------------------------------------- |
-| FavouriteStore | O(n+c+r)   | Each favourite (`n`), customer (`c`) and restaurant (`r`) at most once in each data structure |
+| Store          | Worst Case | Description                                                                                              |
+| -------------- | ---------- | -------------------------------------------------------------------------------------------------------- |
+| FavouriteStore | O(n+c+r)   | Each favourite (`n`), customer (`c`) and restaurant (`r`) are stored at most once in each data structure |
 
 ### Time Complexity
 | Method                                                          | Average Case | Description                                                     |
@@ -82,8 +83,8 @@ NOTE: A sorting approach is preferable to a linear approach, as the latter would
 | getFavourite(Long id)                                           | O(logn)      | Tree search                                                     |
 | getFavourites()                                                 | O(n)         | Inorder traversal                                               |
 | getFavourites(Favourite[] f)                                    | O(nlogn)     | Quicksort                                                       |
-| getFavouritesByCustomerID(Long id)                              | O(n)         | Linear search                                                   |
-| getFavouritesByRestaurantID(Long id)                            | O(n)         | Linear search                                                   |
+| getFavouritesByCustomerID(Long id)                              | O(nlogn)     | Linear search and Quicksort                                     |
+| getFavouritesByRestaurantID(Long id)                            | O(nlogn)     | Linear search and Quicksort                                     |
 | getCommonFavouriteRestaurants(<br>&emsp; Long id1, Long id2)    | O(n)         | Merge algorithm                                                 |
 | getMissingFavouriteRestaurants(<br>&emsp; Long id1, Long id2)   | O(n)         | Modified merge algorithm                                        |
 | getNotCommonFavouriteRestaurants(<br>&emsp; Long id1, Long id2) | O(n)         | Modified merge algorithm                                        |
@@ -99,62 +100,68 @@ NOTE: A sorting approach is preferable to a linear approach, as the latter would
 * I used a hash table for the blacklist because of the constant time both when storing an searching for an ID
 
 ### Space Complexity
-| Store           | Worst Case | Description                                  |
-| --------------- | ---------- | -------------------------------------------- |
-| RestaurantStore | O(...)     | I have used `...` ... <br>Where `...` is ... |
+| Store           | Worst Case | Description                                              |
+| --------------- | ---------- | -------------------------------------------------------- |
+| RestaurantStore | O(n)       | Each restaurant is stored at most once in each structure |
 
 ### Time Complexity
-| Method                                                                        | Average Case | Description                                    |
-| ----------------------------------------------------------------------------- | ------------ | ---------------------------------------------- |
-| addRestaurant(Restaurant r)                                                   | O(logn)      | Tree insert                                    |
-| addRestaurant(Restaurant[] r)                                                 | O(nlogn)     | n restaurants inserted with complexity of logn |
-| getRestaurant(Long id)                                                        | O(logn)      | Tree search                                    |
-| getRestaurants()                                                              | O(n)         | Inorder traversal                              |
-| getRestaurants(Restaurant[] r)                                                | O(nlogn)     | Quicksort                                      |
-| getRestaurantsByName()                                                        | O(nlogn)     | Quicksort                                      |
-| getRestaurantsByDateEstablished()                                             | O(nlogn)     | Quicksort                                      |
-| getRestaurantsByDateEstablished(<br>&emsp; Restaurant[] r)                    | O(nlogn)     | Quicksort                                      |
-| getRestaurantsByWarwickStars()                                                | O(nlogn)     | Quicksort                                      |
-| getRestaurantsByRating(Restaurant[] r)                                        | O(nlogn)     | Quicksort                                      |
-| getRestaurantsByDistanceFrom(<br>&emsp; float lat, float lon)                 | O(nlogn)     | Quicksort                                      |
-| getRestaurantsByDistanceFrom(<br>&emsp; Restaurant[] r, float lat, float lon) | O(nlogn)     | Quicksort                                      |
+| Method                                                                        | Average Case | Description                                                                                               |
+| ----------------------------------------------------------------------------- | ------------ | --------------------------------------------------------------------------------------------------------- |
+| addRestaurant(Restaurant r)                                                   | O(logn)      | Tree insert                                                                                               |
+| addRestaurant(Restaurant[] r)                                                 | O(nlogn)     | n restaurants inserted with complexity of logn                                                            |
+| getRestaurant(Long id)                                                        | O(logn)      | Tree search                                                                                               |
+| getRestaurants()                                                              | O(n)         | Inorder traversal                                                                                         |
+| getRestaurants(Restaurant[] r)                                                | O(nlogn)     | Quicksort                                                                                                 |
+| getRestaurantsByName()                                                        | O(nlogn)     | Quicksort                                                                                                 |
+| getRestaurantsByDateEstablished()                                             | O(nlogn)     | Quicksort                                                                                                 |
+| getRestaurantsByDateEstablished(<br>&emsp; Restaurant[] r)                    | O(nlogn)     | Quicksort                                                                                                 |
+| getRestaurantsByWarwickStars()                                                | O(nlogn)     | Quicksort                                                                                                 |
+| getRestaurantsByRating(Restaurant[] r)                                        | O(nlogn)     | Quicksort                                                                                                 |
+| getRestaurantsByDistanceFrom(<br>&emsp; float lat, float lon)                 | O(nlogn)     | Quicksort                                                                                                 |
+| getRestaurantsByDistanceFrom(<br>&emsp; Restaurant[] r, float lat, float lon) | O(nlogn)     | Quicksort                                                                                                 |
 | getRestaurantsContaining(String s)                                            | O(n*(l+s))   | For each restaurant (`n`), converts string (`l` - length of string) and searches for the term in it (`s`) |
 
 <div style="page-break-after: always;"></div>
 
 ## ReviewStore
 ### Overview
-* I have used `...` to store reviews ...
-* I used `...` to sort ...
-* To get ...
-* To get top ...
+* I used an AVL tree structure to store and process reviews because it is efficient when inserting, deleting and searching.
+* I used Quicksort for sorting because it has the lowest possible complexity in terms of time and space.
+* I used a hash table for the blacklist because of the constant time both when storing an searching for an ID
+* I used a hash table to store last date reviewed for each customer and restaurant
+* I used a hash table of trees to store history of reviews for each customer-restaurant pair
+* Tops are computed by counting the favourites for each customer/restaurant (or the average rating for each restaurant or apparitions of each keyword) and sorting the resulting array.
+NOTE: A sorting approach is preferable to a linear approach, as the latter would require 20 iterations and nlogn < 20n for n < 2^20 = 1048576.
+NOTE: For keyword top, as n=82 and the first approach requires 5 iterations, the running times of the two approaches are similar, but the sorting approach was prefered for consistency sake.
+* Time complexity is given assuming that edge cases occur negligibly rarely
 
 ### Space Complexity
-| Store       | Worst Case | Description                                  |
-| ----------- | ---------- | -------------------------------------------- |
-| ReviewStore | O(...)     | I have used `...` ... <br>Where `...` is ... |
+| Store       | Worst Case | Description                                                                                           |
+| ----------- | ---------- | ----------------------------------------------------------------------------------------------------- |
+| ReviewStore | O(n+c+r)   | Each review (`n`), customer (`c`) and restaurant (`r`) are stored at most once in each data structure |
 
 ### Time Complexity
-| Method                                     | Average Case | Description                  |
-| ------------------------------------------ | ------------ | ---------------------------- |
-| addReview(Review r)                        | O(...)       | Description <br>`...` is ... |
-| addReview(Review[] r)                      | O(...)       | Description <br>`...` is ... |
-| getReview(Long id)                         | O(...)       | Description <br>`...` is ... |
-| getReviews()                               | O(...)       | Description <br>`...` is ... |
-| getReviews(Review[] r)                     | O(...)       | Description <br>`...` is ... |
-| getReviewsByDate()                         | O(...)       | Description <br>`...` is ... |
-| getReviewsByRating()                       | O(...)       | Description <br>`...` is ... |
-| getReviewsByRestaurantID(Long id)          | O(...)       | Description <br>`...` is ... |
-| getReviewsByCustomerID(Long id)            | O(...)       | Description <br>`...` is ... |
-| getAverageCustomerReviewRating(Long id)    | O(...)       | Description <br>`...` is ... |
-| getAverageRestaurantReviewRating(Long id)  | O(...)       | Description <br>`...` is ... |
-| getCustomerReviewHistogramCount(Long id)   | O(...)       | Description <br>`...` is ... |
-| getRestaurantReviewHistogramCount(Long id) | O(...)       | Description <br>`...` is ... |
-| getTopCustomersByReviewCount()             | O(...)       | Description <br>`...` is ... |
-| getTopRestaurantsByReviewCount()           | O(...)       | Description <br>`...` is ... |
-| getTopRatedRestaurants()                   | O(...)       | Description <br>`...` is ... |
-| getTopKeywordsForRestaurant(Long id)       | O(...)       | Description <br>`...` is ... |
-| getReviewsContaining(String s)             | O(...)       | Description <br>`...` is ... |
+| Method                                                                             | Average Case | Description                                                                                           |
+| ---------------------------------------------------------------------------------- | ------------ | ----------------------------------------------------------------------------------------------------- |
+| addReview(Review r)                                                                | O(logn)      | Tree insert                                                                                           |
+| addReview(Review[] r)                                                              | O(nlogn)     | n reviews inserted with complexity of logn                                                            |
+| getReview(Long id)                                                                 | O(logn)      | Tree search                                                                                           |
+| getReviews()                                                                       | O(n)         | Inorder traversal                                                                                     |
+| getReviews(Review[] r)                                                             | O(nlogn)     | Quicksort                                                                                             |
+| getReviewsByDate()                                                                 | O(nlogn)     | Quicksort                                                                                             |
+| getReviewsByRating()                                                               | O(nlogn)     | Quicksort                                                                                             |
+| getReviewsByRestaurantID(Long id)                                                  | O(nlogn)     | Linear search and Quicksort                                                                           |
+| getReviewsByCustomerID(Long id)                                                    | O(nlogn)     | Linear search and Quicksort                                                                           |
+| getAverageCustomerReviewRating(Long id)                                            | O(n)         | Linear search                                                                                         |
+| getAverageRestaurantReviewRating(Long id)                                          | O(n)         | Linear search                                                                                         |
+| getCustomerReviewHistogramCount(Long id)                                           | O(n)         | Linear search                                                                                         |
+| getRestaurantReviewHistogramCount(Long id)                                         | O(n)         | Linear search                                                                                         |
+| getTopCustomersByReviewCount()                                                     | O(n+clogc)   | Count reviews and sort results (`c` - number of customers)                                            |
+| getTopRestaurantsByReviewCount()                                                   | O(n+rlogr)   | Count reviews and sort results (`r` - number of restaurants)                                          |
+| getTopRatedRestaurants()                                                           | O(nlogn)     | Linear search and Quicksort                                                                           |
+| getTopKeywordsForRestaurant(Long id)                                               | O(n*w+klogk) | For each review(`n`), check each word (`w` - avarage number of words in review),                      |
+| and if it is a keyword, increment its value in hash map (`k` - number of keywords) |
+| getReviewsContaining(String s)                                                     | O(n*(l+s))   | For each review (`n`), converts string (`l` - length of string) and searches for the term in it (`s`) |  |
 
 <div style="page-break-after: always;"></div>
 
@@ -164,7 +171,7 @@ NOTE: A sorting approach is preferable to a linear approach, as the latter would
     * Searches in a hash table with coordinates and places
 * **DataChecker**
     * `extractTrueID` checks ids two by two, `isValid(Long inputID)` creates a frequency array with the digits of the id,
-      the others just check if the attributes of the object are not null and valid
+      the others just check if the attributes of the object are valid and not null
 * **HaversineDistanceCalculator (HaversineDC)**
     * Just applies mathematical formula
 * **KeywordChecker**
